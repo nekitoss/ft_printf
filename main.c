@@ -22,6 +22,30 @@ l		Для вывода числа типа long int или unsigned long int. И
 ll		Для вывода числа типа long long int или unsigned long long int. Или для явного преобразования при выводе целочисленного числа к типу long long int или unsigned long long int. Используется совместно с типами преобразования:d, i, o, u, x и X, n.
 j				
 z		
+        •An optional length modifier, that specifies the size of the argument.  The following length modi-
+         fiers are valid for the d, i, n, o, u, x, or X conversion:
+
+         Modifier          d, i           o, u, x, X            
+         hh                signed char    unsigned char         
+         h                 short          unsigned short        
+         l (ell)           long           unsigned long         
+         ll (ell ell)      long long      unsigned long long    
+         j                 intmax_t       uintmax_t             
+         z                 (see note)     size_t                
+         
+         Note: the z modifier, when applied to a d or i conversion, indicates that the argument is of 
+         a signed type equivalent in size to a size_t.
+
+        •The following length modifier is valid for the c or s conversion:
+
+         Modifier    c         s
+         l (ell)     wint_t    wchar_t *
+
+         If the l (ell) modifier is used, the wint_t argument shall be converted to a wchar_t, and the
+             (potentially multi-byte) sequence representing the single wide character is written, including
+             any shift sequences.  If a shift sequence is used, the shift state is also restored to the
+             original state after the character.
+
 • You must manage the minimum field-width
 	Спецификатор [ширина] задаёт минимальный размер выводимого числа в символах. Если количество символов в выводимом числе меньше указанной минимальной ширины, то недостоющее количество символов заполняется нулями или пробелами слева или справа в зависимости от указанных флагов. Ширина указывается либо целым числом, либо символом * с последующим указанием имени переменной типа int, содержащей значение ширины, перед аргументом к которому он относится. Если аргумент имеет отрицательное значение, то он эквивалентен соответствующему положительному значению с флагом "-".
 • You must manage the precision
@@ -34,11 +58,12 @@ o	Вывод целого числа без знака в восьмерично
 u	Вывод целого числа без знака в десятичной систем счисления. По умолчанию выводится число размером sizeof( int ), с правым выравниванием.
 x,X	Вывод целого числа без знака в шестнадцетеричной систем счисления. Причем для преобразования x используются символы abcdef, а для X - символы ABCDEF. По умолчанию выводится число размером sizeof( int ), с правым выравниванием.
 s	Вывод строки, на которую ссылается указатель в аргументе функции printf. Строка выводится пока не будет встречен символ конец строки (/0). По умолчанию строка должна обозначаться как char*. Если указан модификатор l, то строка интерпитируется как wchar_t*.
-S	(Unicode).Аналогичен преобразованию s с модификатором l (ls). 
-C	(Unicode).(? Аналогичен преобразованию c с модификатором l (ls). ?)
-p	Вывод указателя. Результат ввода зависит от архитектуры и используемого компилятрора.
+S	(Unicode).Аналогичен преобразованию s с модификатором l. 
+C	(Unicode).(? Аналогичен преобразованию c с модификатором l. ?)
+		https://forum.intra.42.fr/topics/15759/messages/last
+p	Вывоqд указателя. Результат ввода зависит от архитектуры и используемого компилятрора. (as if by `%#x' or `%#lx')
 c	Вывод символа, соответстветсвующего числу указанному в аргументе функции. По умолчанию число приводится к типу unsigned char.
-D,O,U	The long int argument is converted to signed decimal, octal, or unsigned decimal, as if the format had been ld, lo, lu respectively. These conversion characters are deprecated, will eventually disappear.
+D,O,U	The long int argument is converted to signed decimal, unsigned octal, or unsigned decimal, as if the format had been ld, lo, lu respectively. These conversion characters are deprecated, will eventually disappear.
 
 Правда компилятор выдает предупреждение(пытаемся всунуть обычный int в long) на первый printf при:
 printf("Positive %ld\n", 42);
@@ -47,5 +72,9 @@ printf("Positive %D\n", 42);
 printf("Positive %ld\n", 42L);
 Это к тому, что D принимает без предупреждений обычный int в качестве long а ld - ругается.
 
-• You must manage %%
+• You must manage %%. A `%' is written.  No argument is converted.  The complete conversion specification is `%%'.
+
+In no case does a non-existent or small field width cause truncation of a numeric field; if the result
+     of a conversion is wider than the field width, the field is expanded to contain the conversion result.
+
 */
