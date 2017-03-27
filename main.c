@@ -78,3 +78,16 @@ In no case does a non-existent or small field width cause truncation of a numeri
      of a conversion is wider than the field width, the field is expanded to contain the conversion result.
 
 */
+
+int		main(int argc, char **argv)
+{
+	if (argc == 2)
+	{
+		ft_printf(argv[1]);
+	}
+	else
+	{
+		//here must be hard-tests
+	}
+	return (0);
+}
