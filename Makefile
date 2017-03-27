@@ -28,7 +28,7 @@ clean:
 	rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) ft_printf.h.gch
 
 re: fclean all
 
@@ -39,4 +39,12 @@ libclean:
 	$(LIBMAKE) clean
 
 libre:
-	$(LIBMAKE) re 
+	$(LIBMAKE) re
+
+main: all
+	gcc $(NAME) main.c
+
+mcl: fclean
+	rm -f main.o
+
+mre: mcl main
