@@ -110,6 +110,7 @@ int		main(int argc, char **argv)
 	else
 	{
 		//here must be hard-tests
+        ft_printf("");
 	}
 	return (0);
 }
