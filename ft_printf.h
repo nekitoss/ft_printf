@@ -6,7 +6,7 @@
 
 
 # include <stdio.h>
-
+# include "assert.h"
 
 int		ft_printf(char *str, ...);
 
