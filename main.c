@@ -111,6 +111,7 @@ int		main(int argc, char **argv)
 	{
 		//here must be hard-tests
         ft_printf("");
+        ft_printf("lllf");
 	}
 	return (0);
 }
