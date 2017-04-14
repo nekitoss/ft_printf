@@ -110,7 +110,12 @@ char	*ft_newstrnchar(size_t len, char c)
 	return(((char *)ft_memset(ft_strnew(len), c, len)));
 }
 
-
+void	ft_freelist(p_list **ls)
+{
+	ft_strdel(&((*ls)->fl_list));
+	ft_strdel(&((*ls)->pre));
+	*ls = NULL;
+}
 
 int		ft_printf(char *str, ...)
 {
@@ -155,6 +160,7 @@ int		ft_printf(char *str, ...)
 	print_struct(plist);
 	//vartypevar = va_arg(ap, vartype);
 	va_end(ap);
+	ft_freelist(&plist);
 	return (0);
 	//return(number_of_sym_printed) or -1 if error
 }
