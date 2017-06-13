@@ -5,6 +5,7 @@
 #define MODIF "hljz"
 #define SKIP "#-+0 hljz123456789."
 #define CONV "idDoOuUxXsScCp"
+#define EOS -1
 //#define FULL_L "#-+0hljzidDoOuUxXsScCp"
 
 #define DIEZ flags[0]
@@ -32,10 +33,13 @@ typedef struct  print_list
 	// int 	l;
 	// int 	j;
 	// int 	z;
-	char	*fl_list;
+	// char	*fl_list;
 	char	flags[11];
 	char	*pre;
 	char	*body;
+	char	*curr_pos;
+	char	*start;
+	char	*end;
 }               p_list;
 
 void	print_struct(p_list *ls)
@@ -63,9 +67,10 @@ void	print_struct(p_list *ls)
 	printf("l=%d\n", ls->L_);
 	printf("j=%d\n", ls->J_);
 	printf("z=%d\n", ls->Z_);
-	printf("fl_list=%s\n", ls->fl_list);
+	// printf("fl_list=%s\n", ls->fl_list);
 	printf("pre=%s\n", ls->pre);
 	printf("body=%s\n", ls->body);
+	printf("curr_pos=%s\n", ls->curr_pos);
 }
 
 int		ft_count(char *str, char c)
@@ -108,56 +113,68 @@ char	*ft_newstrnchar(size_t len, char c)
 
 void	ft_freelist(p_list **ls)
 {
-	ft_strdel(&((*ls)->fl_list));
+	// ft_strdel(&((*ls)->fl_list));
 	ft_strdel(&((*ls)->pre));
 	*ls = NULL;
 }
 
-int		ft_printf(char *str, ...)
+void	cut_a_piece(p_list *ls, char *str, int pos)
 {
-	// char	*(plist->body);
 	char	convertor;
-	int		pos;
-	p_list	*plist;
 
-	PRINT_D_MSG("input = %s\n", str);
-	plist = ft_memalloc(sizeof(p_list));
-	plist->fl_list = ft_strjoin(FLAGS, MODIF);
-	//plist = (p_list *)malloc(sizeof(p_list));
-	// plist->h = 100;
-	// print_struct(plist);
-	// ft_bzero(plist, sizeof(p_list));
-	// ft_memset(plist, 0,sizeof(p_list));
-	va_list	ap;
-	va_start(ap, str);
-	pos = ft_strcstr(str, SKIP, 0);
-		PRINT_D_MSG("try to find SKIP = %d\n", pos);
-	(plist->body) = (pos >= 0 ? str + pos : NULL);
-		ASSERT_D(!(plist->body), "no flag or modifier found\n");
-		ASSERT_D((plist->body), "found end at =  \"%s\"\n", (plist->body));
-	if ((plist->body))
+	if (ls->start != NULL)
 	{
-		if (*(plist->body) == '%')
+		ft_bzero((char *)ls, sizeof(p_list));
+		ls->start = ft_strchr(str, '%');
+			PRINT_D_MSG("start = %s\n", ls->start);
+		(ls->start) ? ft_putnstr(str, ls->start - str) : ft_putstr(str);
+			// PRINT_D_MSG("printed\n");
+		(ls->start) += (ls->start) ? 1 : 0;
+		pos = ft_strcstr(ls->start, SKIP, 0);
+			PRINT_D_MSG("try to find SKIP = %d\n", pos);
+		if (pos == EOS)
+			PRINT_D_MSG("skipped SKIPto EOF\n");
+		(ls->body) = (pos >= 0 ? ls->start + pos : NULL);
+			ASSERT_D(!(ls->body), "no flag or modifier found\n");
+			ASSERT_D((ls->body), "found end at =  \"%s\"\n", (ls->body));
+		if ((ls->body))
 		{
-				PRINT_D_MSG("print_percent\n");
+			if (*(ls->body) != '%')
+			{
+				convertor = !(ft_strchr(CONV, *(ls->body))) ? '\0' : *(ft_strchr(CONV, *(ls->body)));
+					ASSERT_D(convertor, "is_conv = %c\n", convertor);
+					ASSERT_D(!convertor, "is_conv = false\n");
+				ls->pre = ft_strsub(ls->start, 0, -(ls->start - ls->body));
+			}
+			else
+				PRINT_D_MSG("print_percent\n");			
 		}
 		else
 		{
-			convertor = !(ft_strchr(CONV, *(plist->body))) ? '\0' : *(ft_strchr(CONV, *(plist->body)));
-				ASSERT_D(convertor, "is_conv = %c\n", convertor);
-				ASSERT_D(!convertor, "is_conv = false\n");
-			plist->pre = ft_strsub(str, 0, -(str - plist->body));
+			ls->pre = ft_strsub(ls->start, 0, ft_strlen(ls->start));
 		}
-		//if (ft_strchr(CONV, *tmp))
-
 	}
-	// print_struct(plist);
-	if (plist->pre)
-		search_flags(plist);
-	print_struct(plist);
+}
+
+int		ft_printf(char *str, ...)
+{
+	
+	p_list	*ls;
+
+	PRINT_D_MSG("input = %s\n", str);
+	ls = (p_list *)ft_memalloc(sizeof(p_list));
+	// ls->fl_list = ft_strjoin(FLAGS, MODIF);
+	// print_struct(ls);
+	va_list	ap;
+	va_start(ap, str);
+	ls->start = str;
+	cut_a_piece(ls, str, 0);
+	if (ls->pre)
+		search_flags(ls);
+	print_struct(ls);
 	//vartypevar = va_arg(ap, vartype);
 	va_end(ap);
-	ft_freelist(&plist);
+	ft_freelist(&ls);
 	return (0);
 	//return(number_of_sym_printed) or -1 if error
 }
