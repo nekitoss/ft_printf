@@ -1,7 +1,6 @@
 #define DEBUG
 #include "ft_printf.h"
 
-#define MIN(a, b) (a < b ? a : b)
 #define FLAGS "#0-+ "
 #define MODIF "hljz"
 #define SKIP "#-+0 hljz123456789."
@@ -93,16 +92,13 @@ void	search_flags(p_list *ls){
 	ls->PLUS = ft_count(ls->pre, '+');
 	ls->SPACE = ft_count(ls->pre, ' ');
 	tmp = ft_count(ls->pre, 'h');
-	// ls->_HH = tmp > 1 ? tmp % 2 : tmp;
-	// ls->H_ = tmp % 2;
+	ls->_HH = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
+	ls->H_ = tmp % 2;
 	tmp = ft_count(ls->pre, 'l');
-	// ls->_LL = ;
-	// ls->L_ = ;
+	ls->_LL = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
+	ls->L_ = tmp % 2;
 	ls->J_ = ft_count(ls->pre, 'j');
 	ls->Z_ = ft_count(ls->pre, 'z');
-	printf("%d\n", 2 % 1);
-	printf("%d\n", 3 % 1);
-
 }
 
 char	*ft_newstrnchar(size_t len, char c)
@@ -137,7 +133,7 @@ int		ft_printf(char *str, ...)
 	pos = ft_strcstr(str, SKIP, 0);
 		PRINT_D_MSG("try to find SKIP = %d\n", pos);
 	(plist->body) = (pos >= 0 ? str + pos : NULL);
-		ASSERT_D(!(plist->body), "no flag ot modifier found\n");
+		ASSERT_D(!(plist->body), "no flag or modifier found\n");
 		ASSERT_D((plist->body), "found end at =  \"%s\"\n", (plist->body));
 	if ((plist->body))
 	{
