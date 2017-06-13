@@ -152,7 +152,8 @@ int		ft_printf(char *str, ...)
 
 	}
 	// print_struct(plist);
-	search_flags(plist);
+	if (plist->pre)
+		search_flags(plist);
 	print_struct(plist);
 	//vartypevar = va_arg(ap, vartype);
 	va_end(ap);
