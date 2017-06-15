@@ -186,7 +186,7 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
 }
 
-void	cut_a_piece(p_list *ls, int pos)
+void	cut_a_piece(p_list *ls, int pos, char *str)
 {
 	while (ls->start)
 	{
@@ -200,24 +200,21 @@ void	cut_a_piece(p_list *ls, int pos)
 			PRINT_D_MSG("pos=%d\n", pos);
 		ls->middle = ls->start + ((pos > 0) ? pos : 0);
 		ls->end = ft_strchr(ls->start, '%');
-			PRINT_D_MSG("ls->start=%s\n", ls->start);
-			PRINT_D_MSG("ls->middle=%s\n", ls->middle);
-			PRINT_D_MSG("ls->end=%s\n", ls->end);
+			PRINT_D_MSG("ls->start =pos_%03ld=%s\n", -(str - ls->start), ls->start);
+			PRINT_D_MSG("ls->middle=pos_%03ld=%s\n", -(str - ls->middle), ls->middle);
+			PRINT_D_MSG("ls->end   =pos_%03ld=%s\n", -(str - ls->end), ls->end);
 		if (!ls->end)
 			return ;
-		if (ls->middle == ls->end)
-			
 		ls->pre = ft_strsub(ls->start, 0, (ls->middle - ls->start));
 		ls->convertor = !(ft_strchr(CONV, *(ls->middle))) ? '\0' : *(ft_strchr(CONV, *(ls->middle)));
 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
 				ASSERT_D(!ls->convertor, "is_conv = false\n");
 		make_conversion(ls);
+		if (ls->middle != ls->end)
+			ls->len = ft_putnstr()
 		break ;
-		// if (*(ls->start) == '%')
 
-		// pos = ft_strcstr(ls->start, SKIP, 0);
-		// 	PRINT_D_MSG("try to find SKIP = %d\n", pos);
-		// str[0] = 46;
+
 	}
 }
 
@@ -238,7 +235,7 @@ int		ft_printf(char *str, ...)
 	{
 		ls->len += ft_putnstr(ls->start, ls->end - ls->start);
 		ls->middle = ls->end;
-		cut_a_piece(ls, 0);
+		cut_a_piece(ls, 0, str);
 		if (ls->pre)
 			search_flags(ls);
 		print_struct(ls);
