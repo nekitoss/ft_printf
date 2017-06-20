@@ -211,7 +211,7 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 				ASSERT_D(!ls->convertor, "is_conv = false\n");
 		make_conversion(ls);
 		if (ls->middle != ls->end)
-			ls->len = ft_putnstr()
+			ls->len = ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
 		break ;
 
 
