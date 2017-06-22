@@ -19,22 +19,11 @@
 #define L_ flags[8]
 #define J_ flags[9]
 #define Z_ flags[10]
+#define DOT flags[11]
 
 typedef struct  print_list
 {
-	// int 	diez;
-	// int 	zero;
-	// int 	minus;
-	// int 	plus;
-	// int 	space;
-	// int 	hh;
-	// int 	h;
-	// int 	ll;
-	// int 	l;
-	// int 	j;
-	// int 	z;
-	// char	*fl_list;
-	char	flags[11];
+	size_t	flags[12];
 	char	*pre;
 	char	*body;
 	// char	*curr_pos;
@@ -47,29 +36,18 @@ typedef struct  print_list
 
 void	print_struct(p_list *ls)
 {
-	// printf("diez=%d\n", ls->diez);
-	// printf("zero=%d\n", ls->zero);
-	// printf("minus=%d\n", ls->minus);
-	// printf("plus=%d\n", ls->plus);
-	// printf("space=%d\n", ls->space);
-	// printf("hh=%d\n", ls->hh);
-	// printf("h=%d\n", ls->h);
-	// printf("ll=%d\n", ls->ll);
-	// printf("l=%d\n", ls->l);
-	// printf("j=%d\n", ls->j);
-	// printf("z=%d\n", ls->z);
-
-	printf("\ndiez=%d\n", ls->DIEZ);
-	printf("zero=%d\n", ls->ZERO);
-	printf("minus=%d\n", ls->MINUS);
-	printf("plus=%d\n", ls->PLUS);
-	printf("space=%d\n", ls->SPACE);
-	printf("hh=%d\n", ls->_HH);
-	printf("h=%d\n", ls->H_);
-	printf("ll=%d\n", ls->_LL);
-	printf("l=%d\n", ls->L_);
-	printf("j=%d\n", ls->J_);
-	printf("z=%d\n", ls->Z_);
+	printf("\ndiez=%zu\n", ls->DIEZ);
+	printf("zero=%zu\n", ls->ZERO);
+	printf("minus=%zu\n", ls->MINUS);
+	printf("plus=%zu\n", ls->PLUS);
+	printf("space=%zu\n", ls->SPACE);
+	printf("hh=%zu\n", ls->_HH);
+	printf("h=%zu\n", ls->H_);
+	printf("ll=%zu\n", ls->_LL);
+	printf("l=%zu\n", ls->L_);
+	printf("j=%zu\n", ls->J_);
+	printf("z=%zu\n", ls->Z_);
+	printf("dots=%zu\n", ls->DOT);
 	// printf("fl_list=%s\n", ls->fl_list);
 	printf("pre=%s\n", ls->pre);
 	printf("body=%s\n", ls->body);
@@ -87,9 +65,9 @@ int		err(int errnum)
 	return (0);
 }
 
-int		ft_count(char *str, char c)
+size_t		ft_count(char *str, char c)
 {
-	int res;
+	size_t res;
 
 	res = 0;
 	while (*str != '\0')
@@ -118,6 +96,7 @@ void	search_flags(p_list *ls){
 	ls->L_ = tmp % 2;
 	ls->J_ = ft_count(ls->pre, 'j');
 	ls->Z_ = ft_count(ls->pre, 'z');
+	ls->DOT = ft_count(ls->pre, '.');
 }
 
 char	*ft_newstrnchar(size_t len, char c)
@@ -138,52 +117,40 @@ void	ft_freelist(p_list **ls)
 	*ls = NULL;
 }
 
-// void	cut_a_piece(p_list *ls, char *str, int pos)
-// {
-// 	if (ls->start != NULL)
-// 	{
-// 		// ft_bzero((char *)ls, sizeof(p_list));
-// 		// clear_struct(ls);
-// 		ls->start = ft_strchr(str, '%');
-// 			PRINT_D_MSG("start = %s\n", ls->start);
-// 		// (ls->start) ? ft_putnstr(str, ls->start - str) : ft_putstr(str);
-// 		ls->len += ft_putnstr(str, (ls->start) ? (ls->start - str) : ft_strlen(str));
-// 		(ls->start) += (ls->start) ? 1 : 0;
-// 		pos = ft_strcstr(ls->start, SKIP, 0);
-// 			PRINT_D_MSG("try to find SKIP = %d\n", pos);
-// 		if (pos == EOS)
-// 			PRINT_D_MSG("skipped SKIPto EOF\n");
-// 		(ls->body) = (pos >= 0 ? ls->start + pos : NULL);
-// 			ASSERT_D(!(ls->body), "no flag or modifier found\n");
-// 			ASSERT_D((ls->body), "found end at =  \"%s\"\n", (ls->body));
-// 		if ((ls->body) && *(ls->body) != '%')
-// 		{
-// 			ls->convertor = !(ft_strchr(CONV, *(ls->body))) ? '\0' : *(ft_strchr(CONV, *(ls->body)));
-// 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
-// 				ASSERT_D(!ls->convertor, "is_conv = false\n");
-// 			ls->pre = ft_strsub(ls->start, 0, -(ls->start - ls->body));
-// 		}
-// 		else if ((ls->body) && *(ls->body) == '%')
-// 		{
-// 			ls->len += ft_putstr("%");
-// 				PRINT_D_MSG("print_percent\n");			
-// 		}
-// 		else
-// 		{
-// 			ls->pre = ft_strsub(ls->start, 0, ft_strlen(ls->start));
-// 		}
-// 	}
-// }
-
 void 	conv_percent(p_list *ls)
 {
 	ls->len += ft_putstr("%");
 }
 
+void	conv_d(p_list *ls)
+{
+	printf("%p", ls);
+}
+
+void	conv_c(p_list *ls)
+{
+	printf("let's convert that ***t to char = %p\n", ls);
+}
+
 
 void	make_conversion(p_list *ls)
 {
+	(ls->convertor == 'i') ? conv_d(ls) : 0 ;
+	// (ls->convertor == 'd') ? conv_d(ls) : 0 ;
+	// (ls->convertor == 'D') ? conv_d2(ls) : 0 ;
+	// (ls->convertor == 'o') ? conv_o(ls) : 0 ;
+	// (ls->convertor == 'O') ? conv_o2(ls) : 0 ;
+	// (ls->convertor == 'u') ? conv_u(ls) : 0 ;
+	// (ls->convertor == 'U') ? conv_u2(ls) : 0 ;
+	// (ls->convertor == 'x') ? conv_x(ls) : 0 ;
+	// (ls->convertor == 'X') ? conv_x2(ls) : 0 ;
+	// (ls->convertor == 's') ? conv_s(ls) : 0 ;
+	// (ls->convertor == 'S') ? conv_s2(ls) : 0 ;
+	// (ls->convertor == 'c') ? conv_c(ls) : 0 ;
+	// (ls->convertor == 'C') ? conv_c2(ls) : 0 ;
+	// (ls->convertor == 'p') ? conv_p(ls) : 0 ;
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
+	(ls->convertor == '\0') ? conv_c(ls) : 0 ;
 }
 
 void	cut_a_piece(p_list *ls, int pos, char *str)
@@ -191,8 +158,8 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 	while (ls->start)
 	{
 		if (ls->middle < ls->end)
-			ls->len = ft_putnstr(ls->middle + 1, ls->end - ls->middle);
-			PRINT_D_MSG("ls->len = %zu\n", ls->len);
+			ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle);
+			// PRINT_D_MSG("ls->len = %zu\n", ls->len);
 		if (!(ls->start[1]) && *(ls->start) == '%')
 			break ;
 		ls->start = ls->end + 1;
@@ -208,10 +175,10 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		ls->pre = ft_strsub(ls->start, 0, (ls->middle - ls->start));
 		ls->convertor = !(ft_strchr(CONV, *(ls->middle))) ? '\0' : *(ft_strchr(CONV, *(ls->middle)));
 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
-				ASSERT_D(!ls->convertor, "is_conv = false\n");
+				ASSERT_D(!ls->convertor, "%c = is_NOT_conv\n", *(ls->middle));
 		make_conversion(ls);
 		if (ls->middle != ls->end)
-			ls->len = ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
+			ls->len += ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
 		break ;
 
 
@@ -222,13 +189,13 @@ int		ft_printf(char *str, ...)
 {
 	
 	p_list	*ls;
-
 	PRINT_D_MSG("input = %s\n", str);
 	ls = (p_list *)ft_memalloc(sizeof(p_list));
 	// ls->fl_list = ft_strjoin(FLAGS, MODIF);
 	// print_struct(ls);
 	va_list	ap;
 	va_start(ap, str);
+	struct_set_functions(ls);
 	ls->start = str;
 	ls->end = ft_strchr(str, '%');
 	if (ls->end)
