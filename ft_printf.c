@@ -6,20 +6,24 @@
 #define SKIP "#-+0 hljz123456789."
 #define CONV "idDoOuUxXsScCp%"
 #define EOS -1
+#define DIGITS "0123456789"
+#define DIGITS "0123456789"
+#define DEL &(ls->del_text)
+#define TEMP &(ls->tmp_text)
 //#define FULL_L "#-+0hljzidDoOuUxXsScCp"
 
-#define DIEZ flags[0]
-#define ZERO flags[1]
-#define MINUS flags[2]
-#define PLUS flags[3]
-#define SPACE flags[4]
-#define _HH flags[5]
-#define H_ flags[6]
-#define _LL flags[7]
-#define L_ flags[8]
-#define J_ flags[9]
-#define Z_ flags[10]
-#define DOT flags[11]
+#define DIEZ ls->flags[0]
+#define ZERO ls->flags[1]
+#define MINUS ls->flags[2]
+#define PLUS ls->flags[3]
+#define SPACE ls->flags[4]
+#define _HH ls->flags[5]
+#define H_ ls->flags[6]
+#define _LL ls->flags[7]
+#define L_ ls->flags[8]
+#define J_ ls->flags[9]
+#define Z_ ls->flags[10]
+#define DOT ls->flags[11]
 
 typedef struct  print_list
 {
@@ -32,29 +36,34 @@ typedef struct  print_list
 	char	*end;
 	char	convertor;
 	size_t	len;
-
+	size_t	precision;
+	size_t	width;
+	char	*tmp_text;
+	char	*del_text;
 }               p_list;
 
 void	print_struct(p_list *ls)
 {
-	printf("\ndiez=%d\n", ls->DIEZ);
-	printf("zero=%d\n", ls->ZERO);
-	printf("minus=%d\n", ls->MINUS);
-	printf("plus=%d\n", ls->PLUS);
-	printf("space=%d\n", ls->SPACE);
-	printf("hh=%d\n", ls->_HH);
-	printf("h=%d\n", ls->H_);
-	printf("ll=%d\n", ls->_LL);
-	printf("l=%d\n", ls->L_);
-	printf("j=%d\n", ls->J_);
-	printf("z=%d\n", ls->Z_);
-	printf("dots=%d\n", ls->DOT);
+	printf("\ndiez=%d\n", DIEZ);
+	printf("zero=%d\n", ZERO);
+	printf("minus=%d\n", MINUS);
+	printf("plus=%d\n", PLUS);
+	printf("space=%d\n", SPACE);
+	printf("hh=%d\n", _HH);
+	printf("h=%d\n", H_);
+	printf("ll=%d\n", _LL);
+	printf("l=%d\n", L_);
+	printf("j=%d\n", J_);
+	printf("z=%d\n", Z_);
+	printf("dots=%d\n", DOT);
 	// printf("fl_list=%s\n", ls->fl_list);
 	printf("pre=%s\n", ls->pre);
 	printf("body=%s\n", ls->body);
 	// printf("curr_pos=%s\n", ls->curr_pos);
 	printf("convertor=%c\n", ls->convertor);
-	printf("len=%ld\n\n", ls->len);
+	printf("len=%ld\n", ls->len);
+	printf("precision=%ld\n", ls->precision);
+	printf("width=%ld\n\n", ls->width);
 }
 
 int		err(int errnum)
@@ -84,20 +93,20 @@ void	search_flags(p_list *ls){
 	int tmp;
 
 	tmp = 0;
-	ls->DIEZ = ft_count(ls->pre, '#') ? 1 : 0;
-	ls->ZERO = ft_count(ls->pre, '0') ? 1 : 0;
-	ls->MINUS = ft_count(ls->pre, '-') ? 1 : 0;
-	ls->PLUS = ft_count(ls->pre, '+') ? 1 : 0;
-	ls->SPACE = ft_count(ls->pre, ' ') ? 1 : 0;
+	DIEZ = ft_count(ls->pre, '#') ? 1 : 0;
+	// ZERO = ft_count(ls->pre, '0') ? 1 : 0;
+	MINUS = ft_count(ls->pre, '-') ? 1 : 0;
+	PLUS = ft_count(ls->pre, '+') ? 1 : 0;
+	SPACE = ft_count(ls->pre, ' ') ? 1 : 0;
 	tmp = ft_count(ls->pre, 'h');
-	ls->_HH = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
-	ls->H_ = tmp % 2;
+	_HH = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
+	H_ = tmp % 2;
 	tmp = ft_count(ls->pre, 'l');
-	ls->_LL = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
-	ls->L_ = tmp % 2;
-	ls->J_ = ft_count(ls->pre, 'j') ? 1 : 0;
-	ls->Z_ = ft_count(ls->pre, 'z') ? 1 : 0;
-	ls->DOT = ft_count(ls->pre, '.') ? 1 : 0;
+	_LL = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
+	L_ = tmp % 2;
+	J_ = ft_count(ls->pre, 'j') ? 1 : 0;
+	Z_ = ft_count(ls->pre, 'z') ? 1 : 0;
+	DOT = ft_count(ls->pre, '.') ? 1 : 0;
 }
 
 char	*ft_newstrnchar(size_t len, char c)
@@ -153,6 +162,72 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
 	(ls->convertor == '\0') ? conv_c(ls) : 0 ;
 }
+/*
+12z.zzs
+12z01.22zzs
+12z01.22zzz44zzz5s
+0zz.zzs
+zz.22zzs
+0zz11.22zzs
+zz0.22zzs
+zz01.22zzs
+zz01.zzs
+zz11.22zzs
+*/
+void	search_precision_and_width(p_list *ls)
+{
+	int start;
+	int end;
+
+	start = 0;
+	end = 0;
+	if (DOT)
+	{
+			PRINT_D_MSG("pre = %s\n", ls->pre);
+		end = ft_strcstr_f(ls->pre, DIGITS, 1);
+			PRINT_D_MSG("digit at=%d\n", end);
+		if (end > -1 && *(ls->pre + end + 1) == '.')
+		{
+				PRINT_D_MSG("this is width with 0 precision\n");
+			ls->del_text = ft_strsub(ls->pre, 0, end + 1);
+				PRINT_D_MSG("cut1=%s\n", ls->del_text);
+			start = ft_strcstr(ls->del_text, DIGITS, 1);
+				PRINT_D_MSG("start text at=%d\n", start);
+			ls->tmp_text = ft_strsub(ls->del_text, ++start, ft_strlen(ls->del_text));
+			ft_strdel(DEL);
+				PRINT_D_MSG("cut2=%s\n", ls->tmp_text);
+			// ZERO = (*(ls->tmp_text) == '0') ? 1 : 0;
+			ls->width = ft_atoi(ls->tmp_text);
+			ls->precision = 0;
+			ft_strdel(TEMP);
+		}
+		else if (end > -1)
+		{
+				PRINT_D_MSG("this is width\n");
+			ls->del_text = ft_strsub(ls->pre, 0, end + 1);
+				PRINT_D_MSG("cut1=%s\n", ls->del_text);
+			start = ft_strcstr(ls->del_text, DIGITS, 1);
+				PRINT_D_MSG("start text at=%d\n", start);
+			ls->tmp_text = ft_strsub(ls->del_text, ++start, ft_strlen(ls->del_text));
+				PRINT_D_MSG("cut2=%s\n", ls->tmp_text);
+			if (start != EOS  && *(ls->pre + start) == '.')
+				ls->precision = ft_atoi(ls->tmp_text);
+			else
+				ls->width = ft_atoi(ls->tmp_text);
+			ft_strdel(TEMP);
+				ls->tmp_text = ft_strsub(ls->del_text, 0, ++start);
+			ft_strdel(DEL);
+				PRINT_D_MSG("cut3=%s\n", ls->tmp_text);
+		}
+		else
+		{
+				PRINT_D_MSG("no_numbers, but dot is present\n");
+			ls->precision = 0;
+			ls->width = 0;
+		}
+	}
+
+}
 
 void	cut_a_piece(p_list *ls, int pos, char *str)
 {
@@ -205,7 +280,10 @@ int		ft_printf(char *str, ...)
 		ls->middle = ls->end;
 		cut_a_piece(ls, 0, str);
 		if (ls->pre)
+		{
 			search_flags(ls);
+			search_precision_and_width(ls);
+		}
 		print_struct(ls);
 		//vartypevar = va_arg(ap, vartype);
 		va_end(ap);
