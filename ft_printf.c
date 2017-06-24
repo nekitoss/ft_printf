@@ -23,7 +23,7 @@
 
 typedef struct  print_list
 {
-	size_t	flags[12];
+	char	flags[12];
 	char	*pre;
 	char	*body;
 	// char	*curr_pos;
@@ -32,22 +32,23 @@ typedef struct  print_list
 	char	*end;
 	char	convertor;
 	size_t	len;
+
 }               p_list;
 
 void	print_struct(p_list *ls)
 {
-	printf("\ndiez=%zu\n", ls->DIEZ);
-	printf("zero=%zu\n", ls->ZERO);
-	printf("minus=%zu\n", ls->MINUS);
-	printf("plus=%zu\n", ls->PLUS);
-	printf("space=%zu\n", ls->SPACE);
-	printf("hh=%zu\n", ls->_HH);
-	printf("h=%zu\n", ls->H_);
-	printf("ll=%zu\n", ls->_LL);
-	printf("l=%zu\n", ls->L_);
-	printf("j=%zu\n", ls->J_);
-	printf("z=%zu\n", ls->Z_);
-	printf("dots=%zu\n", ls->DOT);
+	printf("\ndiez=%d\n", ls->DIEZ);
+	printf("zero=%d\n", ls->ZERO);
+	printf("minus=%d\n", ls->MINUS);
+	printf("plus=%d\n", ls->PLUS);
+	printf("space=%d\n", ls->SPACE);
+	printf("hh=%d\n", ls->_HH);
+	printf("h=%d\n", ls->H_);
+	printf("ll=%d\n", ls->_LL);
+	printf("l=%d\n", ls->L_);
+	printf("j=%d\n", ls->J_);
+	printf("z=%d\n", ls->Z_);
+	printf("dots=%d\n", ls->DOT);
 	// printf("fl_list=%s\n", ls->fl_list);
 	printf("pre=%s\n", ls->pre);
 	printf("body=%s\n", ls->body);
@@ -83,20 +84,20 @@ void	search_flags(p_list *ls){
 	int tmp;
 
 	tmp = 0;
-	ls->DIEZ = ft_count(ls->pre, '#');
-	ls->ZERO = ft_count(ls->pre, '0');
-	ls->MINUS = ft_count(ls->pre, '-');
-	ls->PLUS = ft_count(ls->pre, '+');
-	ls->SPACE = ft_count(ls->pre, ' ');
+	ls->DIEZ = ft_count(ls->pre, '#') ? 1 : 0;
+	ls->ZERO = ft_count(ls->pre, '0') ? 1 : 0;
+	ls->MINUS = ft_count(ls->pre, '-') ? 1 : 0;
+	ls->PLUS = ft_count(ls->pre, '+') ? 1 : 0;
+	ls->SPACE = ft_count(ls->pre, ' ') ? 1 : 0;
 	tmp = ft_count(ls->pre, 'h');
 	ls->_HH = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
 	ls->H_ = tmp % 2;
 	tmp = ft_count(ls->pre, 'l');
 	ls->_LL = tmp > 1 ? (tmp % 2) ^ 1 << 0 : 0;
 	ls->L_ = tmp % 2;
-	ls->J_ = ft_count(ls->pre, 'j');
-	ls->Z_ = ft_count(ls->pre, 'z');
-	ls->DOT = ft_count(ls->pre, '.');
+	ls->J_ = ft_count(ls->pre, 'j') ? 1 : 0;
+	ls->Z_ = ft_count(ls->pre, 'z') ? 1 : 0;
+	ls->DOT = ft_count(ls->pre, '.') ? 1 : 0;
 }
 
 char	*ft_newstrnchar(size_t len, char c)
@@ -195,7 +196,7 @@ int		ft_printf(char *str, ...)
 	// print_struct(ls);
 	va_list	ap;
 	va_start(ap, str);
-	struct_set_functions(ls);
+	// struct_set_functions(ls);
 	ls->start = str;
 	ls->end = ft_strchr(str, '%');
 	if (ls->end)
