@@ -62,8 +62,8 @@ void	print_struct(p_list *ls)
 	// printf("curr_pos=%s\n", ls->curr_pos);
 	printf("convertor=%c\n", ls->convertor);
 	printf("len=%ld\n", ls->len);
-	printf("precision=%ld\n", ls->precision);
-	printf("width=%ld\n\n", ls->width);
+	printf("width=%ld\n", ls->width);
+	printf("precision=%ld\n\n", ls->precision);
 }
 
 int		err(int errnum)
@@ -245,40 +245,55 @@ size_t	convert_l_dot(p_list *ls)
 	return (res);
 }
 
-void	search_precision_and_width(p_list *ls)
+int		find_last_number(p_list *ls)
 {
-	int	dot;
-	int	dig;
-	int ascii;
+	int		pos;
+	char	*tmp;
 
-	dot = ft_strcstr_f(ls->pre, ".", 1);
-	dig = ft_strcstr_f(ls->pre, DIGITS, 1);
-	ascii = ft_strcstr(ls->pre, DIGITS_D, 1);
-	ls->width = 0;
-	ls->precision = 0;
+	pos = ft_strlen(ls->pre);
+	PRINT_D_MSG("len = %d\n", pos);
+	if (ft_isdigit(*(ls->pre + pos)) || *(ls->pre + pos) == '.')
+		return (ft_strcstr(ls->pre, DIGITS_D, 1));
+	tmp = ft_strsub(ls->pre, 0, ft_strcstr_f(ls->pre, DIGITS_D, 1));
+	PRINT_D_MSG("tmp = %s\n", tmp);
+	pos = ft_strcstr(tmp, DIGITS_D, 1);
+	PRINT_D_MSG("pos = %d\n", pos);
+	ft_strdel(&tmp);
+	return (pos);
+}
+
+void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
+{
+	// int	dot;
+	// int	dig;
+	// int ascii;
+
+	// dot = ft_strcstr_f(ls->pre, ".", 1);
+	// dig = ft_strcstr_f(ls->pre, DIGITS, 1);
+	// ascii = ft_strcstr(ls->pre, DIGITS_D, 1);
+	// ls->width = 0;
 	PRINT_D_MSG("dot=%d, dig=%d, ascii=%d\n", dot, dig, ascii);
-	if (dot == EOS)
+	if (dot == EOS && dig != EOS)
 	{
 			PRINT_D_MSG("no dot, searching width\n");
-		if (dig != EOS)
-			ls->width = convert_last_numb(ls);
+		ls->width = convert_last_numb(ls);
 	}
-	else if (dot != EOS && dig != EOS)
+	else if (dot > EOS && dig > EOS)
 	{
+		ls->precision = 0;
 			PRINT_D_MSG("dot is present, \n");
 		if (dot < dig)
 		{
+			ls->precision = convert_r_dot(ls);
 			if (dot < ascii && ascii < dig)
 			{
 					PRINT_D_MSG("text between dot and digits, apply with and precision after dot\n")
 				ls->width = convert_last_numb(ls);
-				ls->precision = convert_r_dot(ls);
 			}
 			else
 			{
 					PRINT_D_MSG("there are numbers near dot, searching numbers around dot\n")
 				ls->width = convert_l_dot(ls);
-				ls->precision = convert_r_dot(ls);
 			}
 		}
 		else
@@ -341,7 +356,12 @@ int		ft_printf(char *str, ...)
 		if (ls->pre)
 		{
 			search_flags(ls);
-			search_precision_and_width(ls);
+			ls->precision = -1;
+			ls->width = -1;
+			if (*(ls->pre))
+				search_precision_and_width(ls, ft_strcstr_f(ls->pre, ".", 1),
+					ft_strcstr_f(ls->pre, DIGITS, 1),
+					find_last_number(ls));
 		}
 		print_struct(ls);
 		//vartypevar = va_arg(ap, vartype);
