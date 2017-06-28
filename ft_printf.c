@@ -8,8 +8,6 @@
 #define EOS -1
 #define DIGITS "0123456789"
 #define DIGITS_D "0123456789."
-#define DEL &(ls->del_text)
-#define TEMP &(ls->tmp_text)
 //#define FULL_L "#-+0hljzidDoOuUxXsScCp"
 
 #define DIEZ ls->flags[0]
@@ -30,7 +28,6 @@ typedef struct  print_list
 	char	flags[12];
 	char	*pre;
 	char	*body;
-	// char	*curr_pos;
 	char	*start;
 	char	*middle;
 	char	*end;
@@ -38,8 +35,6 @@ typedef struct  print_list
 	size_t	len;
 	size_t	precision;
 	size_t	width;
-	// char	*tmp_text;
-	// char	*del_text;
 }               p_list;
 
 void	print_struct(p_list *ls)
@@ -133,15 +128,21 @@ char	*ft_newstrnchar(size_t len, char c)
 
 void	clear_struct(p_list *ls)
 {
+	size_t len;
+	len = ls->len;
 	// ls->flags[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	ft_bzero((char *)ls, sizeof(ls->flags));
+	ls->len = len;
 }
 
-void	ft_freelist(p_list **ls)
+size_t	ft_freelist(p_list **ls)
 {
+	size_t len;
+	len = (*ls)->len;
 	// ft_strdel(&((*ls)->fl_list));
 	ft_strdel(&((*ls)->pre));
 	*ls = NULL;
+	return (len);
 }
 
 void 	conv_percent(p_list *ls)
@@ -186,15 +187,15 @@ size_t	convert_last_numb(p_list *ls)
 	char	*tmp2;
 	size_t	res;
 
-		PRINT_D_MSG("last_numb: pre = %s\n", ls->pre);
+		// PRINT_D_MSG("last_numb: pre = %s\n", ls->pre);
 	pos = ft_strcstr_f(ls->pre, DIGITS, 1);
-		PRINT_D_MSG("digit at=%d is %c\n", pos, *(ls->pre + pos));
+		// PRINT_D_MSG("digit at=%d is %c\n", pos, *(ls->pre + pos));
 	tmp1 = ft_strsub(ls->pre, 0, pos + 1);
-		PRINT_D_MSG("tmp1=%s\n", tmp1);
+		// PRINT_D_MSG("tmp1=%s\n", tmp1);
 	pos = ft_strcstr(tmp1, DIGITS, 1);
-		PRINT_D_MSG("start text at=%d\n", pos);
+		// PRINT_D_MSG("start text at=%d\n", pos);
 	tmp2 = ft_strsub(tmp1, ++pos, ft_strlen(tmp1));
-		PRINT_D_MSG("tmp2=%s\n", tmp2);
+		// PRINT_D_MSG("tmp2=%s\n", tmp2);
 	res = ft_atoi(tmp2);
 	ft_strdel(&tmp1);
 	ft_strdel(&tmp2);
@@ -208,17 +209,17 @@ size_t	convert_r_dot(p_list *ls)
 	char	*tmp2;
 	size_t	res;
 
-		PRINT_D_MSG("r_dot: pre = %s\n", ls->pre);
+		// PRINT_D_MSG("r_dot: pre = %s\n", ls->pre);
 	pos = ft_strcstr_f(ls->pre, ".", 1);
-		PRINT_D_MSG("digit/dot at=%d is %c\n", pos, *(ls->pre + pos));
+		// PRINT_D_MSG("digit/dot at=%d is %c\n", pos, *(ls->pre + pos));
 	if (!ft_isdigit(*(ls->pre + pos + 1)))
 		return (0);
 	tmp1 = ft_strsub(ls->pre, pos + 1, ft_strlen(ls->pre));
-		PRINT_D_MSG("tmp1=%s\n", tmp1);
+		// PRINT_D_MSG("tmp1=%s\n", tmp1);
 	pos = ft_strcstr(tmp1, DIGITS, 1);
-		PRINT_D_MSG("start text at=%d\n", pos);
+		// PRINT_D_MSG("start text at=%d\n", pos);
 	tmp2 = ft_strsub(tmp1, 0, (pos > -1) ? pos : ft_strlen(tmp1));
-		PRINT_D_MSG("tmp2=%s\n", tmp2);
+		// PRINT_D_MSG("tmp2=%s\n", tmp2);
 	res = ft_atoi(tmp2);
 	ft_strdel(&tmp1);
 	ft_strdel(&tmp2);
@@ -232,17 +233,17 @@ size_t	convert_l_dot(p_list *ls)
 	char	*tmp2;
 	size_t	res;
 
-		PRINT_D_MSG("l_dot: pre = %s\n", ls->pre);
+		// PRINT_D_MSG("l_dot: pre = %s\n", ls->pre);
 	pos = ft_strcstr_f(ls->pre, ".", 1);
-		PRINT_D_MSG("dot at=%d is %c\n", pos, *(ls->pre + pos));
+		// PRINT_D_MSG("dot at=%d is %c\n", pos, *(ls->pre + pos));
 	if (pos == 0 || !ft_isdigit(*(ls->pre + pos - 1)))
 		return (0);
 	tmp1 = ft_strsub(ls->pre, 0, pos);
-		PRINT_D_MSG("tmp1=%s\n", tmp1);
+		// PRINT_D_MSG("tmp1=%s\n", tmp1);
 	pos = ft_strcstr(tmp1, DIGITS, 1);
-		PRINT_D_MSG("start text at=%d\n", pos);
+		// PRINT_D_MSG("start text at=%d\n", pos);
 	tmp2 = ft_strsub(tmp1, ++pos, ft_strlen(tmp1));
-		PRINT_D_MSG("tmp2=%s\n", tmp2);
+		// PRINT_D_MSG("tmp2=%s\n", tmp2);
 	res = ft_atoi(tmp2);
 	ft_strdel(&tmp1);
 	ft_strdel(&tmp2);
@@ -255,46 +256,46 @@ int		find_last_number(p_list *ls)
 	char	*tmp;
 
 	pos = ft_strlen(ls->pre);
-	PRINT_D_MSG("find len = %d\n", pos);
+	// PRINT_D_MSG("find len = %d\n", pos);
 	if (ft_isdigit(*(ls->pre + pos)) || *(ls->pre + pos) == '.')
 		return (ft_strcstr(ls->pre, DIGITS_D, 1));
 	tmp = ft_strsub(ls->pre, 0, ft_strcstr_f(ls->pre, DIGITS_D, 1));
-	PRINT_D_MSG("tmp = %s\n", tmp);
+	// PRINT_D_MSG("tmp = %s\n", tmp);
 	pos = ft_strcstr(tmp, DIGITS_D, 1);
-	PRINT_D_MSG("pos = %d\n", pos);
+	// PRINT_D_MSG("pos = %d\n", pos);
 	ft_strdel(&tmp);
 	return (pos);
 }
 
 void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
 {
-	PRINT_D_MSG("dot=%d, dig=%d, ascii=%d\n", dot, dig, ascii);
+	// PRINT_D_MSG("dot=%d, dig=%d, ascii=%d\n", dot, dig, ascii);
 	if (dot == EOS && dig != EOS)
 	{
-			PRINT_D_MSG("no dot, searching width\n");
+			// PRINT_D_MSG("no dot, searching width\n");
 		ls->width = convert_last_numb(ls);
 	}
 	else if (dot > EOS && dig > EOS)
 	{
 		ls->precision = 0;
-			PRINT_D_MSG("dot is present, \n");
+			// PRINT_D_MSG("dot is present, \n");
 		if (dot < dig)
 		{
 			ls->precision = convert_r_dot(ls);
 			if (dot < ascii && ascii < dig)
 			{
-					PRINT_D_MSG("text between dot and digits, apply with and precision after dot\n")
+					// PRINT_D_MSG("text between dot and digits, apply with and precision after dot\n")
 				ls->width = convert_last_numb(ls);
 			}
 			else
 			{
-					PRINT_D_MSG("there are numbers near dot, searching numbers around dot\n")
+					// PRINT_D_MSG("there are numbers near dot, searching numbers around dot\n")
 				ls->width = convert_l_dot(ls);
 			}
 		}
 		else
 		{
-				PRINT_D_MSG("no numbers after dot, search width before dot\n")
+				// PRINT_D_MSG("no numbers after dot, search width before dot\n")
 			ls->width = convert_l_dot(ls);
 		}
 	}
@@ -302,8 +303,15 @@ void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
 
 void	cut_a_piece(p_list *ls, int pos, char *str)
 {
+#ifdef DEBUG
+	size_t i=1;
+#endif
+#ifndef DEBUG
+	*str = '\0';
+#endif
 	while (ls->start)
 	{
+		PRINT_D_MSG("\n\n###PART____%zu___###\n\n", i++);
 		if (ls->middle < ls->end)
 			ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle);
 			// PRINT_D_MSG("ls->len = %zu\n", ls->len);
@@ -317,18 +325,29 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 			PRINT_D_MSG("ls->start =pos_%03ld=%s\n", -(str - ls->start), ls->start);
 			PRINT_D_MSG("ls->middle=pos_%03ld=%s\n", -(str - ls->middle), ls->middle);
 			PRINT_D_MSG("ls->end   =pos_%03ld=%s\n", -(str - ls->end), ls->end);
-		if (!ls->end)
-			return ;
 		ls->pre = ft_strsub(ls->start, 0, (ls->middle - ls->start));
 		ls->convertor = !(ft_strchr(CONV, *(ls->middle))) ? '\0' : *(ft_strchr(CONV, *(ls->middle)));
 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
 				ASSERT_D(!ls->convertor, "%c = is_NOT_conv\n", *(ls->middle));
 		make_conversion(ls);
+		if (!ls->end)
+			return ;
 		if (ls->middle != ls->end)
 			ls->len += ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
-		break ;
-
-
+		if (ls->pre)
+		{
+			search_flags(ls);
+			ls->precision = -1;
+			ls->width = -1;
+			if (*(ls->pre))
+				search_precision_and_width(ls, ft_strcstr_f(ls->pre, ".", 1),
+					ft_strcstr_f(ls->pre, DIGITS, 1),
+					find_last_number(ls));
+		}
+#ifdef DEBUG
+		print_struct(ls);
+#endif
+		clear_struct(ls);
 	}
 }
 
@@ -349,6 +368,10 @@ int		ft_printf(char *str, ...)
 		ls->len += ft_putnstr(ls->start, ls->end - ls->start);
 		ls->middle = ls->end;
 		cut_a_piece(ls, 0, str);
+		ls->end = ft_strchr(ls->start, 0);
+
+		if (ls->middle != ls->end)
+			ls->len += ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
 		if (ls->pre)
 		{
 			search_flags(ls);
@@ -359,14 +382,16 @@ int		ft_printf(char *str, ...)
 					ft_strcstr_f(ls->pre, DIGITS, 1),
 					find_last_number(ls));
 		}
+#ifdef DEBUG
 		print_struct(ls);
+#endif
+		clear_struct(ls);
 		//vartypevar = va_arg(ap, vartype);
 		va_end(ap);
-		ft_freelist(&ls);
+		return ((int)ft_freelist(&ls));
 	}
 	else
 		return ((int)ft_putstr(str));
-
 	return (0);
 	//return(number_of_sym_printed) or -1 if error
 }
