@@ -38,8 +38,8 @@ typedef struct  print_list
 	size_t	len;
 	size_t	precision;
 	size_t	width;
-	char	*tmp_text;
-	char	*del_text;
+	// char	*tmp_text;
+	// char	*del_text;
 }               p_list;
 
 void	print_struct(p_list *ls)
@@ -89,12 +89,29 @@ size_t		ft_count(char *str, char c)
 	return (res);
 }
 
+int		search_zero_flag(char *str)
+{
+	if (str && *str)
+	{
+		if (*str == '0')
+			return (1);
+		while (*(str + 1) != '\0')
+		{
+			if ((!(ft_isdigit(*str)) && *str != '.') && *(str + 1) == '0')
+				return (1);
+			str++;
+		}
+	}
+	return (0);
+}
+
 void	search_flags(p_list *ls){
 	int tmp;
 
 	tmp = 0;
 	DIEZ = ft_count(ls->pre, '#') ? 1 : 0;
 	// ZERO = ft_count(ls->pre, '0') ? 1 : 0;
+	ZERO = search_zero_flag(ls->pre);
 	MINUS = ft_count(ls->pre, '-') ? 1 : 0;
 	PLUS = ft_count(ls->pre, '+') ? 1 : 0;
 	SPACE = ft_count(ls->pre, ' ') ? 1 : 0;
@@ -161,19 +178,6 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
 	(ls->convertor == '\0') ? conv_c(ls) : 0 ;
 }
-/*
-%12z.zzs%
-%12z01.22zzs%
-%12z01.22zzz44zzz5s%
-%0zz.zzs%
-%zz.22zzs%
-%0zz11.22zzs%
-%zz0.22zzs%
-%zz01.22zzs%
-%zz01.zzs%
-%zz11.22zzs%
-%zz8.022zzs%
-*/
 
 size_t	convert_last_numb(p_list *ls)
 {
@@ -251,7 +255,7 @@ int		find_last_number(p_list *ls)
 	char	*tmp;
 
 	pos = ft_strlen(ls->pre);
-	PRINT_D_MSG("len = %d\n", pos);
+	PRINT_D_MSG("find len = %d\n", pos);
 	if (ft_isdigit(*(ls->pre + pos)) || *(ls->pre + pos) == '.')
 		return (ft_strcstr(ls->pre, DIGITS_D, 1));
 	tmp = ft_strsub(ls->pre, 0, ft_strcstr_f(ls->pre, DIGITS_D, 1));
@@ -264,14 +268,6 @@ int		find_last_number(p_list *ls)
 
 void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
 {
-	// int	dot;
-	// int	dig;
-	// int ascii;
-
-	// dot = ft_strcstr_f(ls->pre, ".", 1);
-	// dig = ft_strcstr_f(ls->pre, DIGITS, 1);
-	// ascii = ft_strcstr(ls->pre, DIGITS_D, 1);
-	// ls->width = 0;
 	PRINT_D_MSG("dot=%d, dig=%d, ascii=%d\n", dot, dig, ascii);
 	if (dot == EOS && dig != EOS)
 	{
