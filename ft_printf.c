@@ -301,6 +301,50 @@ void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
 	}
 }
 
+uintmax_t	ft_unsigned_size(p_list *ls, va_list *ap)
+{
+	uintmax_t	num;
+
+	num = va_arg(*ap, uintmax_t);
+	if (J_)
+		num = (uintmax_t)num;
+	else if (Z_)
+		num = (size_t)num;
+	else if (_LL)
+		num = (unsigned long long int)num;
+	else if (L_)
+		num = (unsigned long int)num;
+	else if (H_)
+		num = (unsigned short int)num;
+	else if (_HH)
+		num = (unsigned char)num;
+	else
+		num = (unsigned int)num;
+	return (num);
+}
+
+intmax_t	ft_signed_size(p_list *ls, va_list *ap)
+{
+	intmax_t	num;
+
+	num = va_arg(*ap, intmax_t);
+	if (J_)
+		num = (intmax_t)num;
+	else if (Z_)
+		num = (size_t)num;
+	else if (_LL)
+		num = (long long int)num;
+	else if (L_)
+		num = (long int)num;
+	else if (H_)
+		num = (signed short int)num;
+	else if (_HH)
+		num = (signed char)num;
+	else
+		num = (int)num;
+	return (num);
+}
+
 void	cut_a_piece(p_list *ls, int pos, char *str)
 {
 #ifdef DEBUG
