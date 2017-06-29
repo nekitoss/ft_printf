@@ -35,6 +35,7 @@ typedef struct  print_list
 	size_t	len;
 	size_t	precision;
 	size_t	width;
+	va_list	ap;
 }               p_list;
 
 void	print_struct(p_list *ls)
@@ -138,10 +139,17 @@ void	clear_struct(p_list *ls)
 size_t	ft_freelist(p_list **ls)
 {
 	size_t len;
+	va_list ap_tmp;
+
+	// va_copy(ap_tmp, ls->ap);
+	ap_tmp = (*ls)->ap;
 	len = (*ls)->len;
 	// ft_strdel(&((*ls)->fl_list));
 	ft_strdel(&((*ls)->pre));
+	(*ls)->ap = ap_tmp;
 	*ls = NULL;
+	// va_copy(ls->ap, ap_tmp);
+	// va_end(ap_tmp);
 	return (len);
 }
 
@@ -157,7 +165,11 @@ void	conv_d(p_list *ls)
 
 void	conv_c(p_list *ls)
 {
-	printf("let's convert that ***t to char = %p\n", ls);
+	char c;
+
+	c = va_arg(ls->ap, char);
+//	ls->len += ft_putstr(&c);
+	write(1, &c, 1);
 }
 
 void	make_conversion(p_list *ls)
@@ -173,7 +185,7 @@ void	make_conversion(p_list *ls)
 	// (ls->convertor == 'X') ? conv_x2(ls) : 0 ;
 	// (ls->convertor == 's') ? conv_s(ls) : 0 ;
 	// (ls->convertor == 'S') ? conv_s2(ls) : 0 ;
-	// (ls->convertor == 'c') ? conv_c(ls) : 0 ;
+	(ls->convertor == 'c') ? conv_c(ls) : 0 ;
 	// (ls->convertor == 'C') ? conv_c2(ls) : 0 ;
 	// (ls->convertor == 'p') ? conv_p(ls) : 0 ;
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
@@ -218,7 +230,7 @@ size_t	convert_r_dot(p_list *ls)
 		// PRINT_D_MSG("tmp1=%s\n", tmp1);
 	pos = ft_strcstr(tmp1, DIGITS, 1);
 		// PRINT_D_MSG("start text at=%d\n", pos);
-	tmp2 = ft_strsub(tmp1, 0, (pos > -1) ? pos : ft_strlen(tmp1));
+	tmp2 = ft_strsub(tmp1, 0, (pos > -1) ? pos : (int)ft_strlen(tmp1));
 		// PRINT_D_MSG("tmp2=%s\n", tmp2);
 	res = ft_atoi(tmp2);
 	ft_strdel(&tmp1);
@@ -398,12 +410,11 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 int		ft_printf(char *str, ...)
 {
 	p_list	*ls;
-	PRINT_D_MSG("input = %s\n", str);
+
+		PRINT_D_MSG("input = %s\n", str);
 	ls = (p_list *)ft_memalloc(sizeof(p_list));
-	// ls->fl_list = ft_strjoin(FLAGS, MODIF);
 	// print_struct(ls);
-	va_list	ap;
-	va_start(ap, str);
+	va_start(ls->ap, str);
 	// struct_set_functions(ls);
 	ls->start = str;
 	ls->end = ft_strchr(str, '%');
@@ -430,12 +441,15 @@ int		ft_printf(char *str, ...)
 		print_struct(ls);
 #endif
 		clear_struct(ls);
-		//vartypevar = va_arg(ap, vartype);
-		va_end(ap);
+		//vartypevar = va_arg(ls->ap, vartype);
+		va_end(ls->ap);
 		return ((int)ft_freelist(&ls));
 	}
 	else
+	{
+		va_end(ls->ap);
 		return ((int)ft_putstr(str));
+	}
 	return (0);
 	//return(number_of_sym_printed) or -1 if error
 }

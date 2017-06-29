@@ -111,7 +111,7 @@ int		main(int argc, char **argv)
 	{
 		//here must be hard-tests
         // ft_printf("");
-        ft_printf("123ghjs");
+        ft_printf("test_char=%c", 'x');
 	}
 	return (0);
 }
