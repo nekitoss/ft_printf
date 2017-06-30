@@ -22,12 +22,13 @@
 #define J_ ls->flags[9]
 #define Z_ ls->flags[10]
 #define DOT ls->flags[11]
+#define BODY ls->bod
 
 typedef struct  print_list
 {
 	char	flags[12];
 	char	*pre;
-	char	*body;
+	char	*bod;
 	char	*start;
 	char	*middle;
 	char	*end;
@@ -55,7 +56,7 @@ void	print_struct(p_list *ls)
 	printf("dots=%d\n", DOT);
 	// printf("fl_list=%s\n", ls->fl_list);
 	printf("pre=%s\n", ls->pre);
-	printf("body=%s\n", ls->body);
+	printf("bod=%s\n", BODY);
 	// printf("curr_pos=%s\n", ls->curr_pos);
 	printf("convertor=%c\n", ls->convertor);
 	printf("len=%ld\n", ls->len);
@@ -130,28 +131,12 @@ char	*ft_newstrnchar(size_t len, char c)
 
 void	clear_struct(p_list *ls)
 {
-/*	size_t len;
-	va_list ap_tmp;
-
-	va_copy(ap_tmp, ls->ap);
-	len = ls->len;
-	// ls->flags[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	ft_bzero((char *)ls, sizeof(ls->flags));
-	ls->len = len;
-	// ap_tmp = (*ls)->ap;
-	// (*ls)->ap = ap_tmp;
-	va_copy(ls->ap, ap_tmp);
-	va_end(ap_tmp);
-*/
 	ft_bzero((char *) ls->flags, sizeof((ls->flags[0]) * 12));
-	ls->pre = NULL;
-	ls->body = NULL;
+	ft_strdel(&(ls->pre));
+	ft_strdel(&(BODY));
 	ls->precision = -1;
 	ls->width = -1;
-
-	// ls->start = NULL;
 	ls->middle = NULL;
-	// end = NULL;
 	ls->convertor = 0;
 }
 
@@ -164,6 +149,24 @@ size_t	ft_freelist(p_list **ls)
 	ft_strdel(&((*ls)->pre));
 	*ls = NULL;
 	return (len);
+}
+
+void	flag_width(p_list *ls)
+{
+	size_t body_len;
+
+	body_len = ft_strlen(BODY);
+	if (body_len < ls->width)
+	{
+		tmp =;//zero or space string
+		if (MINUS)
+			BODY = ft_strjoin_d(&(BODY), &(tmp), 3);
+		else
+		{
+
+		}
+	}
+	ls->len += ft_putnstr(BODY, ft_strlen(BODY));
 }
 
 void 	conv_percent(p_list *ls)
@@ -181,14 +184,14 @@ void	conv_c(p_list *ls)
 	char c;
 
 	c = (!(ls->convertor) ? *(ls->middle) : va_arg(ls->ap, int));
-	ls->len += ft_putchar(c);
-	// write(1, &c, 1);
-	// ft_putstr
+	BODY = ft_strnew(1);
+	*(BODY) = c;
+	// ls->len += ft_putchar(c);
 }
 
 void	make_conversion(p_list *ls)
 {
-	(ls->convertor == 'i') ? conv_d(ls) : 0 ;
+	// (ls->convertor == 'i') ? conv_d(ls) : 0 ;
 	// (ls->convertor == 'd') ? conv_d(ls) : 0 ;
 	// (ls->convertor == 'D') ? conv_d2(ls) : 0 ;
 	// (ls->convertor == 'o') ? conv_o(ls) : 0 ;
