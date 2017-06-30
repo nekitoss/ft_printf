@@ -111,7 +111,8 @@ int		main(int argc, char **argv)
 	{
 		//here must be hard-tests
         // ft_printf("");
-        ft_printf("test_char=%c", 'x');
+        ft_printf("nanaz%1.23sxxx%text");
+        // printf("\n%-10sxx\n", "zzz");
 	}
 	return (0);
 }

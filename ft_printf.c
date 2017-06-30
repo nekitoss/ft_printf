@@ -1,4 +1,4 @@
-#define DEBUG
+// #define DEBUG
 #include "ft_printf.h"
 
 #define FLAGS "#0-+ "
@@ -31,6 +31,7 @@ typedef struct  print_list
 	char	*start;
 	char	*middle;
 	char	*end;
+	char	*ptr_end;
 	char	convertor;
 	size_t	len;
 	size_t	precision;
@@ -62,11 +63,11 @@ void	print_struct(p_list *ls)
 	printf("precision=%ld\n\n", ls->precision);
 }
 
-int		err(int errnum)
+int		my_err(int errnum)
 {
 	write(1, "Error occured in ", 17);
 	ft_putnbr(errnum);
-	exit(errnum);
+	// exit(errnum);
 	// exit(-1);
 	return (0);
 }
@@ -129,27 +130,39 @@ char	*ft_newstrnchar(size_t len, char c)
 
 void	clear_struct(p_list *ls)
 {
-	size_t len;
+/*	size_t len;
+	va_list ap_tmp;
+
+	va_copy(ap_tmp, ls->ap);
 	len = ls->len;
 	// ls->flags[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	ft_bzero((char *)ls, sizeof(ls->flags));
 	ls->len = len;
+	// ap_tmp = (*ls)->ap;
+	// (*ls)->ap = ap_tmp;
+	va_copy(ls->ap, ap_tmp);
+	va_end(ap_tmp);
+*/
+	ft_bzero((char *) ls->flags, sizeof((ls->flags[0]) * 12));
+	ls->pre = NULL;
+	ls->body = NULL;
+	ls->precision = -1;
+	ls->width = -1;
+
+	// ls->start = NULL;
+	ls->middle = NULL;
+	// end = NULL;
+	ls->convertor = 0;
 }
 
 size_t	ft_freelist(p_list **ls)
 {
 	size_t len;
-	va_list ap_tmp;
-
-	// va_copy(ap_tmp, ls->ap);
-	ap_tmp = (*ls)->ap;
+	
 	len = (*ls)->len;
 	// ft_strdel(&((*ls)->fl_list));
 	ft_strdel(&((*ls)->pre));
-	(*ls)->ap = ap_tmp;
 	*ls = NULL;
-	// va_copy(ls->ap, ap_tmp);
-	// va_end(ap_tmp);
 	return (len);
 }
 
@@ -167,9 +180,10 @@ void	conv_c(p_list *ls)
 {
 	char c;
 
-	c = va_arg(ls->ap, char);
-//	ls->len += ft_putstr(&c);
-	write(1, &c, 1);
+	c = (!(ls->convertor) ? *(ls->middle) : va_arg(ls->ap, int));
+	ls->len += ft_putchar(c);
+	// write(1, &c, 1);
+	// ft_putstr
 }
 
 void	make_conversion(p_list *ls)
@@ -363,13 +377,13 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 	size_t i=1;
 #endif
 #ifndef DEBUG
-	*str = '\0';
+	str = NULL;
 #endif
 	while (ls->start)
 	{
 		PRINT_D_MSG("\n\n###PART____%zu___###\n\n", i++);
-		if (ls->middle < ls->end)
-			ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle);
+		// if (ls->middle < ls->end)
+		// 	ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle);
 			// PRINT_D_MSG("ls->len = %zu\n", ls->len);
 		if (!(ls->start[1]) && *(ls->start) == '%')
 			break ;
@@ -386,23 +400,22 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
 				ASSERT_D(!ls->convertor, "%c = is_NOT_conv\n", *(ls->middle));
 		make_conversion(ls);
-		if (!ls->end)
-			return ;
-		if (ls->middle != ls->end)
-			ls->len += ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
+		(!ls->end) ? (ls->end = ft_strchr(ls->start, 0)) : 0;
+		if (ls->middle < ls->end)
+			ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle - 1);
 		if (ls->pre)
 		{
 			search_flags(ls);
 			ls->precision = -1;
 			ls->width = -1;
 			if (*(ls->pre))
-				search_precision_and_width(ls, ft_strcstr_f(ls->pre, ".", 1),
-					ft_strcstr_f(ls->pre, DIGITS, 1),
-					find_last_number(ls));
-		}
+				search_precision_and_width(ls, ft_strcstr_f(ls->pre, ".", 1), ft_strcstr_f(ls->pre, DIGITS, 1), find_last_number(ls));
+		}			
 #ifdef DEBUG
 		print_struct(ls);
 #endif
+		if (ls->end == ls->ptr_end)
+			return ;
 		clear_struct(ls);
 	}
 }
@@ -413,35 +426,15 @@ int		ft_printf(char *str, ...)
 
 		PRINT_D_MSG("input = %s\n", str);
 	ls = (p_list *)ft_memalloc(sizeof(p_list));
-	// print_struct(ls);
 	va_start(ls->ap, str);
-	// struct_set_functions(ls);
 	ls->start = str;
 	ls->end = ft_strchr(str, '%');
 	if (ls->end)
 	{
+		ls->ptr_end = ft_strchr(ls->start, 0);
 		ls->len += ft_putnstr(ls->start, ls->end - ls->start);
 		ls->middle = ls->end;
 		cut_a_piece(ls, 0, str);
-		ls->end = ft_strchr(ls->start, 0);
-
-		if (ls->middle != ls->end)
-			ls->len += ft_putnstr(ls->middle + (ls->convertor ? 1 : 0), ls->end - ls->middle - (ls->convertor ? 1 : 0));
-		if (ls->pre)
-		{
-			search_flags(ls);
-			ls->precision = -1;
-			ls->width = -1;
-			if (*(ls->pre))
-				search_precision_and_width(ls, ft_strcstr_f(ls->pre, ".", 1),
-					ft_strcstr_f(ls->pre, DIGITS, 1),
-					find_last_number(ls));
-		}
-#ifdef DEBUG
-		print_struct(ls);
-#endif
-		clear_struct(ls);
-		//vartypevar = va_arg(ls->ap, vartype);
 		va_end(ls->ap);
 		return ((int)ft_freelist(&ls));
 	}
