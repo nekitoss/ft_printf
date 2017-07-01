@@ -158,7 +158,7 @@ void	flag_width(p_list *ls)
 
 	if (ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
 		BODY = ft_strsub_d(&(BODY), 0, ls->precision);
-	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c')) ? 1 : ft_strlen(BODY));
+	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : ft_strlen(BODY));
 	if (body_len < ls->width)
 	{
 		tmp = ft_newstrchar((ls->width - body_len), (ZERO && !(MINUS) ? '0' : ' '));//zero or space string
@@ -172,7 +172,10 @@ void	flag_width(p_list *ls)
 
 void 	conv_percent(p_list *ls)
 {
-	ls->len += ft_putstr("%");
+	// va_arg(ls->ap, int);
+	BODY = ft_strnew(1);
+	*(BODY) = '%';
+	flag_width(ls);
 }
 
 void	conv_d(p_list *ls)
