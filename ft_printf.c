@@ -181,8 +181,9 @@ void 	conv_percent(p_list *ls)
 void	conv_d(p_list *ls)
 {
 	int	d;
-	// printf("%p", ls);
+	
 	d = va_arg(ls->ap, int);
+	PRINT_D_MSG("conv_d: got number %d\n", d);
 }
 
 void	conv_c(p_list *ls)
@@ -431,9 +432,9 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 #ifdef DEBUG
 		print_struct(ls);
 #endif
+		clear_struct(ls);
 		if (ls->end == ls->ptr_end)
 			return ;
-		clear_struct(ls);
 	}
 }
 
