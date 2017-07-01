@@ -151,7 +151,7 @@ size_t	ft_freelist(p_list **ls)
 	return (len);
 }
 
-void	flag_width(p_list *ls)
+void	flag_width_str(p_list *ls)
 {
 	ssize_t	body_len;
 	char	*tmp;
@@ -175,15 +175,17 @@ void 	conv_percent(p_list *ls)
 	// va_arg(ls->ap, int);
 	BODY = ft_strnew(1);
 	*(BODY) = '%';
-	flag_width(ls);
+	flag_width_str(ls);
 }
 
 void	conv_d(p_list *ls)
 {
 	int	d;
 	
-	d = va_arg(ls->ap, int);
-	PRINT_D_MSG("conv_d: got number %d\n", d);
+	d = va_arg(ls->ap, long);
+	PRINT_D_MSG("conv_d: got number %ld\n", d);
+	BODY = ft_itoa(d);
+	flag_width(ls);
 }
 
 void	conv_c(p_list *ls)
@@ -194,7 +196,7 @@ void	conv_c(p_list *ls)
 	ls->len += (!c && ls->precision) ? 1 : 0;
 	BODY = ft_strnew(1);
 	*(BODY) = c;
-	flag_width(ls);
+	flag_width_str(ls);
 }
 
 void	make_conversion(p_list *ls)
