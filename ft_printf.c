@@ -35,8 +35,8 @@ typedef struct  print_list
 	char	*ptr_end;
 	char	convertor;
 	size_t	len;
-	size_t	precision;
-	size_t	width;
+	ssize_t	precision;
+	ssize_t	width;
 	va_list	ap;
 }               p_list;
 
@@ -124,9 +124,9 @@ void	search_flags(p_list *ls){
 	DOT = ft_count(ls->pre, '.') ? 1 : 0;
 }
 
-char	*ft_newstrnchar(size_t len, char c)
+char	*ft_newstrchar(size_t len, char c)
 {
-	return(((char *)ft_memset(ft_strnew(len), c, len)));
+	return(((char *)ft_memset((void *)ft_strnew(len), c, len)));
 }
 
 void	clear_struct(p_list *ls)
@@ -153,18 +153,19 @@ size_t	ft_freelist(p_list **ls)
 
 void	flag_width(p_list *ls)
 {
-	size_t body_len;
+	ssize_t	body_len;
+	char	*tmp;
 
-	body_len = ft_strlen(BODY);
+	if (ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
+		BODY = ft_strsub_d(&(BODY), 0, ls->precision);
+	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c')) ? 1 : ft_strlen(BODY));
 	if (body_len < ls->width)
 	{
-		tmp =;//zero or space string
+		tmp = ft_newstrchar((ls->width - body_len), (ZERO && !(MINUS) ? '0' : ' '));//zero or space string
 		if (MINUS)
 			BODY = ft_strjoin_d(&(BODY), &(tmp), 3);
 		else
-		{
-
-		}
+			BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
 	}
 	ls->len += ft_putnstr(BODY, ft_strlen(BODY));
 }
@@ -176,7 +177,9 @@ void 	conv_percent(p_list *ls)
 
 void	conv_d(p_list *ls)
 {
-	printf("%p", ls);
+	int	d;
+	// printf("%p", ls);
+	d = va_arg(ls->ap, int);
 }
 
 void	conv_c(p_list *ls)
@@ -184,15 +187,16 @@ void	conv_c(p_list *ls)
 	char c;
 
 	c = (!(ls->convertor) ? *(ls->middle) : va_arg(ls->ap, int));
+	ls->len += (!c && ls->precision) ? 1 : 0;
 	BODY = ft_strnew(1);
 	*(BODY) = c;
-	// ls->len += ft_putchar(c);
+	flag_width(ls);
 }
 
 void	make_conversion(p_list *ls)
 {
 	// (ls->convertor == 'i') ? conv_d(ls) : 0 ;
-	// (ls->convertor == 'd') ? conv_d(ls) : 0 ;
+	(ls->convertor == 'd') ? conv_d(ls) : 0 ;
 	// (ls->convertor == 'D') ? conv_d2(ls) : 0 ;
 	// (ls->convertor == 'o') ? conv_o(ls) : 0 ;
 	// (ls->convertor == 'O') ? conv_o2(ls) : 0 ;
@@ -203,7 +207,7 @@ void	make_conversion(p_list *ls)
 	// (ls->convertor == 's') ? conv_s(ls) : 0 ;
 	// (ls->convertor == 'S') ? conv_s2(ls) : 0 ;
 	(ls->convertor == 'c') ? conv_c(ls) : 0 ;
-	// (ls->convertor == 'C') ? conv_c2(ls) : 0 ;
+	(ls->convertor == 'C') ? conv_c(ls) : 0 ;
 	// (ls->convertor == 'p') ? conv_p(ls) : 0 ;
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
 	(ls->convertor == '\0') ? conv_c(ls) : 0 ;
@@ -288,11 +292,15 @@ int		find_last_number(p_list *ls)
 	// PRINT_D_MSG("find len = %d\n", pos);
 	if (ft_isdigit(*(ls->pre + pos)) || *(ls->pre + pos) == '.')
 		return (ft_strcstr(ls->pre, DIGITS_D, 1));
-	tmp = ft_strsub(ls->pre, 0, ft_strcstr_f(ls->pre, DIGITS_D, 1));
-	// PRINT_D_MSG("tmp = %s\n", tmp);
-	pos = ft_strcstr(tmp, DIGITS_D, 1);
-	// PRINT_D_MSG("pos = %d\n", pos);
-	ft_strdel(&tmp);
+	pos = ft_strcstr_f(ls->pre, DIGITS_D, 1);
+	if (pos != EOS)
+	{
+		tmp = ft_strsub(ls->pre, 0, pos);
+		// PRINT_D_MSG("tmp = %s\n", tmp);
+		pos = ft_strcstr(tmp, DIGITS_D, 1);
+		// PRINT_D_MSG("pos = %d\n", pos);
+		ft_strdel(&tmp);
+	}
 	return (pos);
 }
 
@@ -399,6 +407,17 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 			PRINT_D_MSG("ls->middle=pos_%03ld=%s\n", -(str - ls->middle), ls->middle);
 			PRINT_D_MSG("ls->end   =pos_%03ld=%s\n", -(str - ls->end), ls->end);
 		ls->pre = ft_strsub(ls->start, 0, (ls->middle - ls->start));
+		if (ls->pre)
+		{
+			search_flags(ls);
+			ls->precision = -1;
+			ls->width = -1;
+			if (*(ls->pre))
+				search_precision_and_width(ls, 
+					ft_strcstr_f(ls->pre, ".", 1), 
+					ft_strcstr_f(ls->pre, DIGITS, 1), 
+					find_last_number(ls));
+		}		
 		ls->convertor = !(ft_strchr(CONV, *(ls->middle))) ? '\0' : *(ft_strchr(CONV, *(ls->middle)));
 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
 				ASSERT_D(!ls->convertor, "%c = is_NOT_conv\n", *(ls->middle));
@@ -406,14 +425,6 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		(!ls->end) ? (ls->end = ft_strchr(ls->start, 0)) : 0;
 		if (ls->middle < ls->end)
 			ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle - 1);
-		if (ls->pre)
-		{
-			search_flags(ls);
-			ls->precision = -1;
-			ls->width = -1;
-			if (*(ls->pre))
-				search_precision_and_width(ls, ft_strcstr_f(ls->pre, ".", 1), ft_strcstr_f(ls->pre, DIGITS, 1), find_last_number(ls));
-		}			
 #ifdef DEBUG
 		print_struct(ls);
 #endif
