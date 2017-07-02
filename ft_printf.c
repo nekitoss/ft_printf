@@ -151,6 +151,86 @@ size_t	ft_freelist(p_list **ls)
 	return (len);
 }
 
+uintmax_t	ft_unsigned_size(p_list *ls)
+{
+	uintmax_t	num;
+
+	num = va_arg(ls->ap, uintmax_t);
+	if (J_)
+		num = (uintmax_t)num;
+	else if (Z_)
+		num = (size_t)num;
+	else if (_LL)
+		num = (unsigned long long int)num;
+	else if (L_)
+		num = (unsigned long int)num;
+	else if (H_)
+		num = (unsigned short int)num;
+	else if (_HH)
+		num = (unsigned char)num;
+	else
+		num = (unsigned int)num;
+	return (num);
+}
+
+intmax_t	ft_signed_size(p_list *ls)
+{
+	intmax_t	num;
+
+	num = va_arg(ls->ap, intmax_t);
+	if (J_)
+		num = (intmax_t)num;
+	else if (Z_)
+		num = (size_t)num;
+	else if (_LL)
+		num = (long long int)num;
+	else if (L_)
+		num = (long int)num;
+	else if (H_)
+		num = (signed short int)num;
+	else if (_HH)
+		num = (signed char)num;
+	else
+		num = (int)num;
+	return (num);
+}
+
+void	flag_width_dec(p_list *ls)
+{
+	ssize_t	body_len;
+	char	*tmp;
+
+	body_len = ft_strlen(BODY);
+	PRINT_D_MSG ("inp_join_body=%s\n", BODY);
+	if (!(ft_isdigit(*BODY)))
+		body_len--;
+	if (ls->precision > body_len)
+	{
+		tmp = ft_newstrchar((ls->precision - body_len), '0');
+		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
+		if (!(ft_isdigit(*BODY)))
+			ft_swap_chr(BODY, tmp);
+		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
+		BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
+		PRINT_D_MSG ("join1=%s\n", BODY);
+	}
+	body_len = ft_strlen(BODY);
+	if (ls->width > body_len)
+	{
+		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS ? '0' : ' ');
+		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
+		if (!(ft_isdigit(*BODY)))
+			ft_swap_chr(BODY, tmp);
+		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
+		if (MINUS)
+			BODY = ft_strjoin_d(&(BODY), &(tmp), 3);
+		else
+			BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
+		PRINT_D_MSG ("join2=%s\n", BODY);
+	}
+	ls->len += ft_putnstr(BODY, ft_strlen(BODY));
+}
+
 void	flag_width_str(p_list *ls)
 {
 	ssize_t	body_len;
@@ -161,7 +241,7 @@ void	flag_width_str(p_list *ls)
 	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : ft_strlen(BODY));
 	if (body_len < ls->width)
 	{
-		tmp = ft_newstrchar((ls->width - body_len), (ZERO && !(MINUS) ? '0' : ' '));//zero or space string
+		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS ? '0' : ' ');
 		if (MINUS)
 			BODY = ft_strjoin_d(&(BODY), &(tmp), 3);
 		else
@@ -180,12 +260,15 @@ void 	conv_percent(p_list *ls)
 
 void	conv_d(p_list *ls)
 {
-	int	d;
-	
-	d = va_arg(ls->ap, long);
-	PRINT_D_MSG("conv_d: got number %ld\n", d);
+	int d;
+	// void *tmp;
+	// d = -1;
+	d = va_arg(ls->ap, int);
+	// d = (long long )(tmp);
+	// d = (long long)ft_signed_size(ls);
+	PRINT_D_MSG("conv_d: got number %d\n", d);
 	BODY = ft_itoa(d);
-	flag_width(ls);
+	flag_width_dec(ls);
 }
 
 void	conv_c(p_list *ls)
@@ -201,7 +284,7 @@ void	conv_c(p_list *ls)
 
 void	make_conversion(p_list *ls)
 {
-	// (ls->convertor == 'i') ? conv_d(ls) : 0 ;
+	(ls->convertor == 'i') ? conv_d(ls) : 0 ;
 	(ls->convertor == 'd') ? conv_d(ls) : 0 ;
 	// (ls->convertor == 'D') ? conv_d2(ls) : 0 ;
 	// (ls->convertor == 'o') ? conv_o(ls) : 0 ;
@@ -342,50 +425,6 @@ void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
 			ls->width = convert_l_dot(ls);
 		}
 	}
-}
-
-uintmax_t	ft_unsigned_size(p_list *ls, va_list *ap)
-{
-	uintmax_t	num;
-
-	num = va_arg(*ap, uintmax_t);
-	if (J_)
-		num = (uintmax_t)num;
-	else if (Z_)
-		num = (size_t)num;
-	else if (_LL)
-		num = (unsigned long long int)num;
-	else if (L_)
-		num = (unsigned long int)num;
-	else if (H_)
-		num = (unsigned short int)num;
-	else if (_HH)
-		num = (unsigned char)num;
-	else
-		num = (unsigned int)num;
-	return (num);
-}
-
-intmax_t	ft_signed_size(p_list *ls, va_list *ap)
-{
-	intmax_t	num;
-
-	num = va_arg(*ap, intmax_t);
-	if (J_)
-		num = (intmax_t)num;
-	else if (Z_)
-		num = (size_t)num;
-	else if (_LL)
-		num = (long long int)num;
-	else if (L_)
-		num = (long int)num;
-	else if (H_)
-		num = (signed short int)num;
-	else if (_HH)
-		num = (signed char)num;
-	else
-		num = (int)num;
-	return (num);
 }
 
 void	cut_a_piece(p_list *ls, int pos, char *str)
