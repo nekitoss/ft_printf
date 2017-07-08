@@ -236,12 +236,17 @@ void	flag_width_str(p_list *ls)
 	ssize_t	body_len;
 	char	*tmp;
 
+	PRINT_D_MSG ("str_inp_join_body=%s\n", BODY);
 	if (ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
 		BODY = ft_strsub_d(&(BODY), 0, ls->precision);
+	PRINT_D_MSG ("BODY=%s\n", BODY);
 	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : ft_strlen(BODY));
+	// body_len = ft_strlen(BODY);
+	PRINT_D_MSG ("body_len=%zd\n", body_len);
 	if (body_len < ls->width)
 	{
 		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS ? '0' : ' ');
+
 		if (MINUS)
 			BODY = ft_strjoin_d(&(BODY), &(tmp), 3);
 		else
@@ -279,7 +284,7 @@ void	conv_c(p_list *ls)
 	char c;
 
 	c = (!(ls->convertor) ? *(ls->middle) : va_arg(ls->ap, int));
-	ls->len += (!c && ls->precision) ? 1 : 0;
+	// ls->len += (!c && ls->precision) ? 1 : 0;
 	BODY = ft_strnew(1);
 	*(BODY) = c;
 	flag_width_str(ls);
