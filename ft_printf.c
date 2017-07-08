@@ -202,12 +202,12 @@ void	flag_width_dec(p_list *ls)
 
 	body_len = ft_strlen(BODY);
 	PRINT_D_MSG ("inp_join_body=%s\n", BODY);
-	if (!(ft_isdigit(*BODY)))
+	if (ls->precision && !(ft_isdigit(*BODY)))
 		body_len--;
 	if (ls->precision > body_len)
 	{
 		tmp = ft_newstrchar((ls->precision - body_len), '0');
-		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
+		PRINT_D_MSG ("p1_tmp=%s;BODY=%s\n", tmp, BODY);
 		if (!(ft_isdigit(*BODY)))
 			ft_swap_chr(BODY, tmp);
 		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
@@ -218,8 +218,8 @@ void	flag_width_dec(p_list *ls)
 	if (ls->width > body_len)
 	{
 		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS ? '0' : ' ');
-		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
-		if (!(ft_isdigit(*BODY)))
+		PRINT_D_MSG ("p2_tmp=%s;BODY=%s\n", tmp, BODY);
+		if (ls->precision > 0 && !(ft_isdigit(*BODY)))
 			ft_swap_chr(BODY, tmp);
 		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
 		if (MINUS)
@@ -267,7 +267,10 @@ void	conv_d(p_list *ls)
 	// d = (long long )(tmp);
 	// d = (long long)ft_signed_size(ls);
 	PRINT_D_MSG("conv_d: got number %d\n", d);
-	BODY = ft_itoa(d);
+	if (ls->precision)
+		BODY = ft_itoa(d);
+	else
+		BODY = ft_strnew(0);
 	flag_width_dec(ls);
 }
 
@@ -355,17 +358,28 @@ size_t	convert_l_dot(p_list *ls)
 	char	*tmp2;
 	size_t	res;
 
-		// PRINT_D_MSG("l_dot: pre = %s\n", ls->pre);
+	res = 0;
+		PRINT_D_MSG("l_dot: pre = %s\n", ls->pre);
 	pos = ft_strcstr_f(ls->pre, ".", 1);
-		// PRINT_D_MSG("dot at=%d is %c\n", pos, *(ls->pre + pos));
-	if (pos == 0 || !ft_isdigit(*(ls->pre + pos - 1)))
+		PRINT_D_MSG("dot at=%d is %c\n", pos, *(ls->pre + pos));
+	if (pos <= 0)
 		return (0);
 	tmp1 = ft_strsub(ls->pre, 0, pos);
-		// PRINT_D_MSG("tmp1=%s\n", tmp1);
-	pos = ft_strcstr(tmp1, DIGITS, 1);
-		// PRINT_D_MSG("start text at=%d\n", pos);
+		PRINT_D_MSG("tmp1=%s\n", tmp1);	
+	if (!ft_isdigit(*(ls->pre + pos - 1)))
+	{
+		pos = ft_strcstr(tmp1, DIGITS, 1);
+		if (pos == EOS)
+		{
+			ft_strdel(&tmp1);
+			return (0);
+		}
+		tmp1 = ft_strsub_d(&(tmp1), 0, pos);
+	}
+	pos = ft_strcstr(tmp1, DIGITS_D, 1);
+		PRINT_D_MSG("start text at=%d\n", pos);
 	tmp2 = ft_strsub(tmp1, ++pos, ft_strlen(tmp1));
-		// PRINT_D_MSG("tmp2=%s\n", tmp2);
+		PRINT_D_MSG("tmp2=%s\n", tmp2);
 	res = ft_atoi(tmp2);
 	ft_strdel(&tmp1);
 	ft_strdel(&tmp2);
@@ -424,6 +438,12 @@ void	search_precision_and_width(p_list *ls, int dot, int dig, int ascii)
 				// PRINT_D_MSG("no numbers after dot, search width before dot\n")
 			ls->width = convert_l_dot(ls);
 		}
+	}
+	else if (dot > EOS && dig == EOS)
+	{
+			// PRINT_D_MSG("only dot, without numbers\n")
+		ls->width = 0;
+		ls->precision = 0;
 	}
 }
 
