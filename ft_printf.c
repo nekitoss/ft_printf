@@ -235,24 +235,26 @@ void	flag_width_str(p_list *ls)
 {
 	ssize_t	body_len;
 	char	*tmp;
+	int		kostil;
 
+	kostil = ((!(*BODY) && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : 0)
 	PRINT_D_MSG ("str_inp_join_body=%s\n", BODY);
-	if (ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
+	if ((ls->convertor == 's' || ls->convertor == 'S') && ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
 		BODY = ft_strsub_d(&(BODY), 0, ls->precision);
 	PRINT_D_MSG ("BODY=%s\n", BODY);
 	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : ft_strlen(BODY));
-	// body_len = ft_strlen(BODY);
 	PRINT_D_MSG ("body_len=%zd\n", body_len);
 	if (body_len < ls->width)
 	{
 		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS ? '0' : ' ');
-
 		if (MINUS)
 			BODY = ft_strjoin_d(&(BODY), &(tmp), 3);
 		else
 			BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
 	}
-	ls->len += ft_putnstr(BODY, ft_strlen(BODY));
+	(kostil && !MINUS) ? ft_putchar(0) : 0;
+	ls->len += ft_putnstr(BODY, ft_strlen(BODY)) + kostil;
+	(kostil && MINUS) ? ft_putchar(0) : 0;
 }
 
 void 	conv_percent(p_list *ls)
