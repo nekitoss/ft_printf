@@ -267,12 +267,9 @@ void 	conv_percent(p_list *ls)
 
 void	conv_d(p_list *ls)
 {
-	int d;
-	// void *tmp;
-	// d = -1;
-	d = va_arg(ls->ap, int);
-	// d = (long long )(tmp);
-	// d = (long long)ft_signed_size(ls);
+	intmax_t d;
+
+	d = ft_signed_size(ls);
 	PRINT_D_MSG("conv_d: got number %d\n", d);
 	if (!(ls->precision) && !d)
 		BODY = ft_strnew(0);
