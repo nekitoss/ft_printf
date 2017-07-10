@@ -87,7 +87,7 @@ size_t		ft_count(char *str, char c)
 	return (res);
 }
 
-int		search_zero_flag(char *str)
+/*int		search_zero_flag1(char *str)
 {
 	if (str && *str)
 	{
@@ -103,13 +103,73 @@ int		search_zero_flag(char *str)
 	return (0);
 }
 
+int		search_zero_flag2(char *str)
+{
+	int result;
+
+	result = 0;
+	if (str && *str)
+	{
+		while (*(str + 1) != '\0')
+		{
+			if (*str == '0')
+			{
+				ft_strchrdel(str, 0);
+				result = 1;
+			}
+			else if (!(ft_isdigit(*str)) && *str != '.' && *(str + 1) == '0')
+			{
+				ft_strchrdel((str + 1), 0);
+				result = 1;
+			}
+			else
+			{
+				str++;
+			}
+		}
+	}
+	return (result);
+}*/
+
+int		search_zero_flag(char *str)
+{
+	int result;
+	size_t pos;
+
+	result = 0;
+	pos = 0;
+	if (str && *str)
+	{
+		while (str[pos + 1] != '\0')
+		{
+			if (pos == 0 && *str == '0')
+			{
+				ft_strchrdel(str, 0);
+				result = 1;
+				continue ;
+			}
+			if (!(ft_isdigit(str[pos])) && str[pos + 1] == '0')
+			{
+				ft_strchrdel(str, pos + 1);
+				result = 1;
+			}
+			else
+			{
+				pos++;
+			}
+		}
+	}
+	return (result);
+}
+
 void	search_flags(p_list *ls){
 	int tmp;
 
 	tmp = 0;
 	DIEZ = ft_count(ls->pre, '#') ? 1 : 0;
-	// ZERO = ft_count(ls->pre, '0') ? 1 : 0;
+		// PRINT_D_MSG("pre before zerosearch=%s\n", ls->pre);
 	ZERO = search_zero_flag(ls->pre);
+		// PRINT_D_MSG("pre AFTER zerosearch=%s\n", ls->pre);
 	MINUS = ft_count(ls->pre, '-') ? 1 : 0;
 	PLUS = ft_count(ls->pre, '+') ? 1 : 0;
 	SPACE = ft_count(ls->pre, ' ') ? 1 : 0;
@@ -199,7 +259,12 @@ void	flag_width_dec(p_list *ls)
 {
 	ssize_t	body_len;
 	char	*tmp;
-
+	
+	if (ft_isdigit(*BODY) && PLUS)
+	{
+		tmp = ft_strdup("+");
+		BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
+	}
 	body_len = ft_strlen(BODY);
 	PRINT_D_MSG ("inp_join_body=%s\n", BODY);
 	if (ls->precision && !(ft_isdigit(*BODY)))
@@ -270,7 +335,7 @@ void	conv_d(p_list *ls)
 	intmax_t d;
 
 	d = ft_signed_size(ls);
-	PRINT_D_MSG("conv_d: got number %d\n", d);
+	PRINT_D_MSG("conv_d: got number %jd\n", d);
 	if (!(ls->precision) && !d)
 		BODY = ft_strnew(0);
 	else
@@ -289,21 +354,33 @@ void	conv_c(p_list *ls)
 	flag_width_str(ls);
 }
 
+void	conv_big(p_list *ls)
+{
+	_LL = 0;
+	L_ = 1;
+	(ls->convertor == 'D') ? conv_d(ls) : 0 ;
+	// (ls->convertor == 'O') ? conv_o(ls) : 0 ;
+	// (ls->convertor == 'U') ? conv_u(ls) : 0 ;
+	// (ls->convertor == 'S') ? conv_s(ls) : 0 ;
+	(ls->convertor == 'C') ? conv_c(ls) : 0 ;
+
+}
+
 void	make_conversion(p_list *ls)
 {
 	(ls->convertor == 'i') ? conv_d(ls) : 0 ;
 	(ls->convertor == 'd') ? conv_d(ls) : 0 ;
-	// (ls->convertor == 'D') ? conv_d2(ls) : 0 ;
+	(ls->convertor == 'D') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'o') ? conv_o(ls) : 0 ;
-	// (ls->convertor == 'O') ? conv_o2(ls) : 0 ;
+	// (ls->convertor == 'O') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'u') ? conv_u(ls) : 0 ;
-	// (ls->convertor == 'U') ? conv_u2(ls) : 0 ;
+	// (ls->convertor == 'U') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'x') ? conv_x(ls) : 0 ;
-	// (ls->convertor == 'X') ? conv_x2(ls) : 0 ;
+	// (ls->convertor == 'X') ? conv_X2(ls) : 0 ;
 	// (ls->convertor == 's') ? conv_s(ls) : 0 ;
-	// (ls->convertor == 'S') ? conv_s2(ls) : 0 ;
+	// (ls->convertor == 'S') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'c') ? conv_c(ls) : 0 ;
-	(ls->convertor == 'C') ? conv_c(ls) : 0 ;
+	(ls->convertor == 'C') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'p') ? conv_p(ls) : 0 ;
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
 	(ls->convertor == '\0') ? conv_c(ls) : 0 ;

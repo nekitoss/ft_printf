@@ -109,16 +109,7 @@ int		main(int argc, char **argv)
 	}
 	else
 	{
-        // long long d = -42;
-        // ft_printf("___%012d___\n", d);
-        // printf("___%4.0s___", "v");
-        {
-        // int nmb = 4235;
-        #define CNV "d"
-        printf("res=%d\n", (ft_printf("%03c", 0)));
-        
+        printf("res=%d\n", (ft_printf("\t|%012i|\t|%-12i|\t|%012i|", -42, 42, 42)));
     }
-      
-	}
 	return (0);
 }
