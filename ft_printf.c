@@ -87,50 +87,6 @@ size_t		ft_count(char *str, char c)
 	return (res);
 }
 
-/*int		search_zero_flag1(char *str)
-{
-	if (str && *str)
-	{
-		if (*str == '0')
-			return (1);
-		while (*(str + 1) != '\0')
-		{
-			if ((!(ft_isdigit(*str)) && *str != '.') && *(str + 1) == '0')
-				return (1);
-			str++;
-		}
-	}
-	return (0);
-}
-
-int		search_zero_flag2(char *str)
-{
-	int result;
-
-	result = 0;
-	if (str && *str)
-	{
-		while (*(str + 1) != '\0')
-		{
-			if (*str == '0')
-			{
-				ft_strchrdel(str, 0);
-				result = 1;
-			}
-			else if (!(ft_isdigit(*str)) && *str != '.' && *(str + 1) == '0')
-			{
-				ft_strchrdel((str + 1), 0);
-				result = 1;
-			}
-			else
-			{
-				str++;
-			}
-		}
-	}
-	return (result);
-}*/
-
 int		search_zero_flag(char *str)
 {
 	int result;
@@ -260,9 +216,9 @@ void	flag_width_dec(p_list *ls)
 	ssize_t	body_len;
 	char	*tmp;
 	
-	if (ft_isdigit(*BODY) && PLUS)
+	if (ft_isdigit(*BODY) && (PLUS || SPACE))
 	{
-		tmp = ft_strdup("+");
+		tmp = ft_strdup(SPACE ? " " : "+");
 		BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
 	}
 	body_len = ft_strlen(BODY);
