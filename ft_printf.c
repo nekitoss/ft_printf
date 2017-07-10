@@ -217,9 +217,9 @@ void	flag_width_dec(p_list *ls)
 	body_len = ft_strlen(BODY);
 	if (ls->width > body_len)
 	{
-		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS ? '0' : ' ');
+		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS && ls->precision == EOS ? '0' : ' ');
 		PRINT_D_MSG ("p2_tmp=%s;BODY=%s\n", tmp, BODY);
-		if (ls->precision > 0 && !(ft_isdigit(*BODY)))
+		if (ls->precision && !(ft_isdigit(*BODY)) && *tmp == '0')
 			ft_swap_chr(BODY, tmp);
 		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
 		if (MINUS)
@@ -237,7 +237,7 @@ void	flag_width_str(p_list *ls)
 	char	*tmp;
 	int		kostil;
 
-	kostil = ((!(*BODY) && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : 0)
+	kostil = ((!(*BODY) && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : 0);
 	PRINT_D_MSG ("str_inp_join_body=%s\n", BODY);
 	if ((ls->convertor == 's' || ls->convertor == 'S') && ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
 		BODY = ft_strsub_d(&(BODY), 0, ls->precision);
@@ -274,10 +274,10 @@ void	conv_d(p_list *ls)
 	// d = (long long )(tmp);
 	// d = (long long)ft_signed_size(ls);
 	PRINT_D_MSG("conv_d: got number %d\n", d);
-	if (ls->precision)
-		BODY = ft_itoa(d);
-	else
+	if (!(ls->precision) && !d)
 		BODY = ft_strnew(0);
+	else
+		BODY = ft_itoa(d);
 	flag_width_dec(ls);
 }
 
