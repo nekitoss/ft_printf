@@ -218,7 +218,7 @@ void	flag_width_dec(p_list *ls)
 	
 	if (ft_isdigit(*BODY) && (PLUS || SPACE))
 	{
-		tmp = ft_strdup(SPACE ? " " : "+");
+		tmp = ft_strdup(PLUS ? "+" : " ");
 		BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
 	}
 	body_len = ft_strlen(BODY);
@@ -258,12 +258,12 @@ void	flag_width_str(p_list *ls)
 	char	*tmp;
 	int		kostil;
 
-	kostil = ((!(*BODY) && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : 0);
+	kostil = ((!(*BODY) && (ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : 0);
 	PRINT_D_MSG ("str_inp_join_body=%s\n", BODY);
 	if ((ls->convertor == 's' || ls->convertor == 'S') && ls->precision > EOS && ls->precision < (ssize_t)ft_strlen(BODY))
 		BODY = ft_strsub_d(&(BODY), 0, ls->precision);
 	PRINT_D_MSG ("BODY=%s\n", BODY);
-	body_len = ((ls->precision && (ls->convertor == '\0' || ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : ft_strlen(BODY));
+	body_len = ((ls->precision && ( ls->convertor == 'c' || ls->convertor == 'C')) ? 1 : ft_strlen(BODY));
 	PRINT_D_MSG ("body_len=%zd\n", body_len);
 	if (body_len < ls->width)
 	{
@@ -310,12 +310,28 @@ void	conv_c(p_list *ls)
 	flag_width_str(ls);
 }
 
+void	conv_o(p_list *ls)
+{
+	uintmax_t o;
+
+	PLUS = 0;
+	ZERO = 0;
+	SPACE = 0;
+	o = ft_unsigned_size(ls);
+	PRINT_D_MSG("conv_d: got number %jd\n", d);
+	if (!(ls->precision) && !o)
+		BODY = ft_strnew(0);
+	else
+		BODY = ft_itoa_base_u(o, 8, 0);
+	flag_width_dec(ls);
+}
+
 void	conv_big(p_list *ls)
 {
 	_LL = 0;
 	L_ = 1;
 	(ls->convertor == 'D') ? conv_d(ls) : 0 ;
-	// (ls->convertor == 'O') ? conv_o(ls) : 0 ;
+	(ls->convertor == 'O') ? conv_o(ls) : 0 ;
 	// (ls->convertor == 'U') ? conv_u(ls) : 0 ;
 	// (ls->convertor == 'S') ? conv_s(ls) : 0 ;
 	(ls->convertor == 'C') ? conv_c(ls) : 0 ;
@@ -327,8 +343,8 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == 'i') ? conv_d(ls) : 0 ;
 	(ls->convertor == 'd') ? conv_d(ls) : 0 ;
 	(ls->convertor == 'D') ? conv_big(ls) : 0 ;
-	// (ls->convertor == 'o') ? conv_o(ls) : 0 ;
-	// (ls->convertor == 'O') ? conv_big(ls) : 0 ;
+	(ls->convertor == 'o') ? conv_o(ls) : 0 ;
+	(ls->convertor == 'O') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'u') ? conv_u(ls) : 0 ;
 	// (ls->convertor == 'U') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'x') ? conv_x(ls) : 0 ;

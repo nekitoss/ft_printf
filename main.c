@@ -109,7 +109,7 @@ int		main(int argc, char **argv)
 	}
 	else
 	{
-        printf("res=%d\n", (ft_printf("|%0 i|", 42)));
+        printf("res=%d\n", (ft_printf("% h", 42)));
     }
 	return (0);
 }

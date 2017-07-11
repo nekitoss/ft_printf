@@ -33,7 +33,7 @@ fclean: clean
 	@rm -f $(NAME) a.out
 	@echo "\033[01;31mFt_printf executable files deleted\033[0m"
 
-re: fclean all
+re: libre fclean all
 
 liball:
 	@$(LIBMAKE) all
