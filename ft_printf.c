@@ -73,6 +73,33 @@ int		my_err(int errnum)
 	return (0);
 }
 
+int			ft_isswappable(char c)
+{
+	if (c == ' ' || c == '+' || c == '-')
+		return (1);
+	else
+		return (0);
+}
+
+void		ft_add_prefix(p_list *ls)
+{
+	char	*tmp;
+	// int		pos;
+
+	if (DIEZ && (ls->convertor == 'X' || ls->convertor == 'x'))
+	{
+		// pos = ft_strcstr(BODY, " ", 1);
+		// PRINT_D_MSG ("add_prefix at pos=%d\n", pos);
+		// if (pos > EOS)
+			tmp = ft_strdup((ls->convertor == 'X') ? "0X" : "0x");
+			PRINT_D_MSG("adding prefix %s to %s\n", tmp, BODY);
+			BODY = ft_strjoin_d(&tmp, &(BODY), 3);
+			PRINT_D_MSG ("prefix result = %s\n", BODY);
+			DIEZ = 0;
+	}
+	// if (!MINUS && ZERO && DIEZ)
+}
+
 size_t		ft_count(char *str, char c)
 {
 	size_t res;
@@ -229,7 +256,7 @@ void	flag_width_dec(p_list *ls)
 	{
 		tmp = ft_newstrchar((ls->precision - body_len), '0');
 		PRINT_D_MSG ("p1_tmp=%s;BODY=%s\n", tmp, BODY);
-		if (!(ft_isdigit(*BODY)))
+		if (ft_isswappable(*BODY))
 			ft_swap_chr(BODY, tmp);
 		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
 		BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
@@ -240,7 +267,8 @@ void	flag_width_dec(p_list *ls)
 	{
 		tmp = ft_newstrchar(ls->width - body_len, ZERO && !MINUS && ls->precision == EOS ? '0' : ' ');
 		PRINT_D_MSG ("p2_tmp=%s;BODY=%s\n", tmp, BODY);
-		if (ls->precision && !(ft_isdigit(*BODY)) && *tmp == '0')
+		(*tmp == ' ') ? ft_add_prefix(ls) : 0;
+		if (ls->precision && ft_isswappable(*BODY) && *tmp == '0')
 			ft_swap_chr(BODY, tmp);
 		PRINT_D_MSG ("tmp=%s;BODY=%s\n", tmp, BODY);
 		if (MINUS)
@@ -249,6 +277,7 @@ void	flag_width_dec(p_list *ls)
 			BODY = ft_strjoin_d(&(tmp), &(BODY), 3);
 		PRINT_D_MSG ("join2=%s\n", BODY);
 	}
+	ft_add_prefix(ls);
 	ls->len += ft_putnstr(BODY, ft_strlen(BODY));
 }
 
@@ -315,14 +344,52 @@ void	conv_o(p_list *ls)
 	uintmax_t o;
 
 	PLUS = 0;
-	ZERO = 0;
+	// ZERO = 0;
 	SPACE = 0;
 	o = ft_unsigned_size(ls);
-	PRINT_D_MSG("conv_d: got number %jd\n", d);
+	PRINT_D_MSG("conv_o: got number %jd\n", o);
 	if (!(ls->precision) && !o)
 		BODY = ft_strnew(0);
 	else
-		BODY = ft_itoa_base_u(o, 8, 0);
+		BODY = ft_itoa_base_u(o, 8, 0, (DIEZ && o) ? 1 : 0);
+	flag_width_dec(ls);
+}
+
+void	conv_u(p_list *ls)
+{
+	uintmax_t u;
+
+	PLUS = 0;
+	SPACE = 0;
+	u = ft_unsigned_size(ls);
+	PRINT_D_MSG("conv_u: got number %jd\n", u);
+	if (!(ls->precision) && !u)
+		BODY = ft_strnew(0);
+	else
+		BODY = ft_itoa_base_u(u, 10, 0, 0);
+	flag_width_dec(ls);
+}
+
+void	conv_x(p_list *ls, int big_l)
+{
+	uintmax_t x;
+
+	PLUS = 0;
+	SPACE = 0;
+	x = ft_unsigned_size(ls);
+	PRINT_D_MSG("conv_u: got number %jd\n", x);
+	!x ? DIEZ = 0 : 0;
+	if (DIEZ)
+	{
+		if (ls->width > 2)
+			ls->width -= 2;
+		else if (ls->width != EOS)
+			ls->width = 0;
+	}
+	if (!(ls->precision) && !x)
+		BODY = ft_strnew(0);
+	else
+		BODY = ft_itoa_base_u(x, 16, big_l, 0);
 	flag_width_dec(ls);
 }
 
@@ -332,7 +399,7 @@ void	conv_big(p_list *ls)
 	L_ = 1;
 	(ls->convertor == 'D') ? conv_d(ls) : 0 ;
 	(ls->convertor == 'O') ? conv_o(ls) : 0 ;
-	// (ls->convertor == 'U') ? conv_u(ls) : 0 ;
+	(ls->convertor == 'U') ? conv_u(ls) : 0 ;
 	// (ls->convertor == 'S') ? conv_s(ls) : 0 ;
 	(ls->convertor == 'C') ? conv_c(ls) : 0 ;
 
@@ -345,10 +412,10 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == 'D') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'o') ? conv_o(ls) : 0 ;
 	(ls->convertor == 'O') ? conv_big(ls) : 0 ;
-	// (ls->convertor == 'u') ? conv_u(ls) : 0 ;
-	// (ls->convertor == 'U') ? conv_big(ls) : 0 ;
-	// (ls->convertor == 'x') ? conv_x(ls) : 0 ;
-	// (ls->convertor == 'X') ? conv_X2(ls) : 0 ;
+	(ls->convertor == 'u') ? conv_u(ls) : 0 ;
+	(ls->convertor == 'U') ? conv_big(ls) : 0 ;
+	(ls->convertor == 'x') ? conv_x(ls, 0) : 0 ;
+	(ls->convertor == 'X') ? conv_x(ls, 1) : 0 ;
 	// (ls->convertor == 's') ? conv_s(ls) : 0 ;
 	// (ls->convertor == 'S') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'c') ? conv_c(ls) : 0 ;
@@ -519,7 +586,17 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		ls->start = ls->end + 1;
 		pos = ft_strcstr(ls->start, SKIP, 0);
 			PRINT_D_MSG("pos=%d\n", pos);
-		ls->middle = ls->start + ((pos > 0) ? pos : 0);
+		// if (pos > 0)
+		// 	ls->middle = ls->start + pos;
+		// else
+		// {
+		// 	if(*(ls->start) != '%')
+		// 		ls->middle = ft_strchr(ls->start, 0);
+		// 	else 
+		// 		ls->middle = ls->start;
+		// }
+		// ls->middle =  ((pos > 0) ? ls->start + pos : ft_strchr(ls->start, 0));
+		ls->middle =  ((pos > 0) ? ls->start + pos : 0);
 		ls->end = ft_strchr(ls->start, '%');
 			PRINT_D_MSG("ls->start =pos_%03ld=%s\n", -(str - ls->start), ls->start);
 			PRINT_D_MSG("ls->middle=pos_%03ld=%s\n", -(str - ls->middle), ls->middle);
