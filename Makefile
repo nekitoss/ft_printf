@@ -62,7 +62,7 @@ main: all
 mre: fclean main
 
 maind: all
-	@$(CC) $(FLAGS) -Wno-format-invalid-specifier -Wno-format -Wno-macro-redefined -Wno-implicitly-unsigned-literal $(NAME) printf_main.c
+	@$(CC) $(FLAGS) -Wno-format-invalid-specifier -Wno-format -Wno-macro-redefined -Wno-implicitly-unsigned-literal $(NAME) printf_main.c ft_printf.c libftprintf.a ft_printf.h
 	@echo  "\033[32mLibrary and printf_main.c compilation with additional flags finished\033[0m"
 
 mdre: fclean maind

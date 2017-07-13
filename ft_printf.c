@@ -1,4 +1,4 @@
-// #define DEBUG
+#define DEBUG
 #include "ft_printf.h"
 
 #define FLAGS "#0-+ "
@@ -596,7 +596,7 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		// 		ls->middle = ls->start;
 		// }
 		// ls->middle =  ((pos > 0) ? ls->start + pos : ft_strchr(ls->start, 0));
-		ls->middle =  ((pos > 0) ? ls->start + pos : 0);
+		ls->middle = ls->start + ((pos > 0) ? pos : 0);
 		ls->end = ft_strchr(ls->start, '%');
 			PRINT_D_MSG("ls->start =pos_%03zu=%s\n", -(str - ls->start), ls->start);
 			PRINT_D_MSG("ls->middle=pos_%03zu=%s\n", -(str - ls->middle), ls->middle);
@@ -626,6 +626,8 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		clear_struct(ls);
 		if (ls->end == ls->ptr_end)
 			return ;
+		else if (ls->convertor == '%')
+			ls->end += 1;
 	}
 }
 
