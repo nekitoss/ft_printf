@@ -4,7 +4,7 @@
 
 # include <stdarg.h>
 # include "libft/libft.h"
-
+# include <inttypes.h>
 
 
 int		ft_printf(char *str, ...);

@@ -1,3 +1,14 @@
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+	CC = gcc
+endif
+ifeq ($(UNAME), Linux)
+	CC = c99
+endif
+
+FLAGS = -Wall -Wextra -Werror
+
 NAME = libftprintf.a
 
 SRC = ft_printf.c
@@ -6,9 +17,9 @@ OBJ = $(SRC:.c=.o)
 
 LIBOBJ = libft/*.o
 
-INC = -I ft_printf.h
+INC = -I ./
 
-CFLAGS = -c -Wall -Wextra -Werror
+CFLAGS = -c
 
 LIBMAKE = make -C libft/
 
@@ -23,7 +34,7 @@ $(NAME): $(OBJ)
 	@echo  "\033[32mPrintf was added to libft, libftprintf.a created\033[0m"
 
 %.o: %.c
-	@gcc $(INC) $(CFLAGS) -o $@ $<
+	@$(CC) $(INC) $(CFLAGS) -o $@ $<
 
 clean:
 	@rm -f $(OBJ) ft_printf.h.gch printf_main.o main.o
@@ -45,13 +56,13 @@ libre:
 	@$(LIBMAKE) re
 
 main: all
-	@gcc -Wall -Wextra -Werror $(NAME) main.c
+	@$(CC) $(FLAGS) $(NAME) main.c
 	@echo  "\033[32mLibrary and main.c compilation finished\033[0m"
 
 mre: fclean main
 
 maind: all
-	@gcc -Wall -Wextra -Werror -Wno-format-invalid-specifier -Wno-format -Wno-macro-redefined -Wno-implicitly-unsigned-literal $(NAME) printf_main.c
+	@$(CC) $(FLAGS) -Wno-format-invalid-specifier -Wno-format -Wno-macro-redefined -Wno-implicitly-unsigned-literal $(NAME) printf_main.c
 	@echo  "\033[32mLibrary and printf_main.c compilation with additional flags finished\033[0m"
 
 mdre: fclean maind

@@ -59,9 +59,9 @@ void	print_struct(p_list *ls)
 	printf("bod=%s\n", BODY);
 	// printf("curr_pos=%s\n", ls->curr_pos);
 	printf("convertor=%c\n", ls->convertor);
-	printf("len=%ld\n", ls->len);
-	printf("width=%ld\n", ls->width);
-	printf("precision=%ld\n\n", ls->precision);
+	printf("len=%zu\n", ls->len);
+	printf("width=%zu\n", ls->width);
+	printf("precision=%zu\n\n", ls->precision);
 }
 
 int		my_err(int errnum)
@@ -598,9 +598,9 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		// ls->middle =  ((pos > 0) ? ls->start + pos : ft_strchr(ls->start, 0));
 		ls->middle =  ((pos > 0) ? ls->start + pos : 0);
 		ls->end = ft_strchr(ls->start, '%');
-			PRINT_D_MSG("ls->start =pos_%03ld=%s\n", -(str - ls->start), ls->start);
-			PRINT_D_MSG("ls->middle=pos_%03ld=%s\n", -(str - ls->middle), ls->middle);
-			PRINT_D_MSG("ls->end   =pos_%03ld=%s\n", -(str - ls->end), ls->end);
+			PRINT_D_MSG("ls->start =pos_%03zu=%s\n", -(str - ls->start), ls->start);
+			PRINT_D_MSG("ls->middle=pos_%03zu=%s\n", -(str - ls->middle), ls->middle);
+			PRINT_D_MSG("ls->end   =pos_%03zu=%s\n", -(str - ls->end), ls->end);
 		ls->pre = ft_strsub(ls->start, 0, (ls->middle - ls->start));
 		if (ls->pre)
 		{
