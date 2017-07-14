@@ -85,7 +85,7 @@ void		ft_add_prefix(p_list *ls)
 {
 	char	*tmp;
 
-	if (DIEZ && (ls->convertor == 'X' || ls->convertor == 'x'))
+	if (DIEZ && (ls->convertor == 'X' || ls->convertor == 'x' || ls->convertor == 'p'))
 	{
 		tmp = ft_strdup((ls->convertor == 'X') ? "0X" : "0x");
 		PRINT_D_MSG("adding prefix %s to %s\n", tmp, BODY);
@@ -348,7 +348,15 @@ void	conv_o(p_list *ls)
 	o = ft_unsigned_size(ls);
 	PRINT_D_MSG("conv_o: got number %jd\n", o);
 	if (!(ls->precision) && !o)
-		BODY = ft_strnew(0);
+	{
+		if (!DIEZ)
+			BODY = ft_strnew(0);
+		else
+		{
+			BODY = ft_strnew(1);
+			*BODY = '0';
+		}
+	}
 	else
 		BODY = ft_itoa_base_u(o, 8, 0, (DIEZ && o) ? 1 : 0);
 	flag_width_dec(ls);
@@ -392,6 +400,30 @@ void	conv_x(p_list *ls, int big_l)
 	flag_width_dec(ls);
 }
 
+void	conv_p(p_list *ls)
+{
+	uintmax_t p;
+
+	DIEZ = 1;
+	J_ = 1;
+	PLUS = 0;
+	SPACE = 0;
+	p = ft_unsigned_size(ls);
+	PRINT_D_MSG("conv_u: got number %jd\n", p);
+	if (DIEZ)
+	{
+		if (ls->width > 2)
+			ls->width -= 2;
+		else if (ls->width != EOS)
+			ls->width = 0;
+	}
+	if (!(ls->precision) && !p)
+		BODY = ft_strnew(0);
+	else
+		BODY = ft_itoa_base_u(p, 16, 0, 0);
+	flag_width_dec(ls);
+}
+
 void	conv_big(p_list *ls)
 {
 	_LL = 0;
@@ -419,7 +451,7 @@ void	make_conversion(p_list *ls)
 	// (ls->convertor == 'S') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'c') ? conv_c(ls) : 0 ;
 	(ls->convertor == 'C') ? conv_big(ls) : 0 ;
-	// (ls->convertor == 'p') ? conv_p(ls) : 0 ;
+	(ls->convertor == 'p') ? conv_p(ls) : 0 ;
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
 	(ls->convertor == -1) ? conv_c(ls) : 0 ;
 }
@@ -606,11 +638,11 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 #ifdef DEBUG
 		print_struct(ls);
 #endif
-		if (ls->end != ls->ptr_end && ls->convertor == '%'
-					&& (pos = ft_strcstr_f(ls->end + 1, "%", 0)) > EOS)
+		if (ls->end != ls->ptr_end && ls->convertor == '%')
 		{
-			ls->len += ft_putnstr(ls->end + 1, pos);
-			ls->end += pos + 1;
+			pos = ft_strcstr_f(ls->end + 1, "%", 0);
+			ls->len += ft_putnstr(ls->end + 1, (pos > EOS ? pos : ls->ptr_end - ls->end - 1));
+			ls->end = (pos > EOS) ? ls->end + pos + 1 : ls->ptr_end;
 		}
 		clear_struct(ls);
 		if (ls->end == ls->ptr_end)
