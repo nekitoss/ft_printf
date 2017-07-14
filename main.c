@@ -109,7 +109,7 @@ int		main(int argc, char **argv)
 	}
 	else
 	{
-        printf("\nres=%d\n", (ft_printf("|%-10|", -42)));
+        printf("\nres=%d\n", (ft_printf("%%%", -42)));
         printf("%%%%");
     }
 	return (0);

@@ -1,4 +1,4 @@
-#define DEBUG
+// #define DEBUG
 #include "ft_printf.h"
 
 #define FLAGS "#0-+ "
@@ -602,12 +602,9 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 			PRINT_D_MSG("ls->middle=pos_%03zu=%s\n", -(str - ls->middle), ls->middle);
 			PRINT_D_MSG("ls->end   =pos_%03zu=%s\n", -(str - ls->end), ls->end);
 		ls->pre = ft_strsub(ls->start, 0, (ls->middle - ls->start));
-		if (ls->pre)
+		if (ls->pre && *(ls->pre))
 		{
 			search_flags(ls);
-			ls->precision = -1;
-			ls->width = -1;
-			if (*(ls->pre))
 				search_precision_and_width(ls, 
 					ft_strcstr_f(ls->pre, ".", 1), 
 					ft_strcstr_f(ls->pre, DIGITS, 1), 
@@ -637,6 +634,7 @@ int		ft_printf(char *str, ...)
 
 		PRINT_D_MSG("input = %s\n", str);
 	ls = (p_list *)ft_memalloc(sizeof(p_list));
+	clear_struct(ls);
 	va_start(ls->ap, str);
 	ls->start = str;
 	ls->end = ft_strchr(str, '%');
