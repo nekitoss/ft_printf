@@ -84,20 +84,15 @@ int			ft_isswappable(char c)
 void		ft_add_prefix(p_list *ls)
 {
 	char	*tmp;
-	// int		pos;
 
 	if (DIEZ && (ls->convertor == 'X' || ls->convertor == 'x'))
 	{
-		// pos = ft_strcstr(BODY, " ", 1);
-		// PRINT_D_MSG ("add_prefix at pos=%d\n", pos);
-		// if (pos > EOS)
-			tmp = ft_strdup((ls->convertor == 'X') ? "0X" : "0x");
-			PRINT_D_MSG("adding prefix %s to %s\n", tmp, BODY);
-			BODY = ft_strjoin_d(&tmp, &(BODY), 3);
-			PRINT_D_MSG ("prefix result = %s\n", BODY);
-			DIEZ = 0;
+		tmp = ft_strdup((ls->convertor == 'X') ? "0X" : "0x");
+		PRINT_D_MSG("adding prefix %s to %s\n", tmp, BODY);
+		BODY = ft_strjoin_d(&tmp, &(BODY), 3);
+		PRINT_D_MSG ("prefix result = %s\n", BODY);
+		DIEZ = 0;
 	}
-	// if (!MINUS && ZERO && DIEZ)
 }
 
 size_t		ft_count(char *str, char c)
@@ -180,16 +175,20 @@ void	clear_struct(p_list *ls)
 	ls->precision = -1;
 	ls->width = -1;
 	ls->middle = NULL;
-	ls->convertor = 0;
+	ls->convertor = -1;
 }
 
 size_t	ft_freelist(p_list **ls)
 {
 	size_t len;
-	
+		
+		PRINT_D_MSG("free\n");
 	len = (*ls)->len;
-	// ft_strdel(&((*ls)->fl_list));
+	va_end((*ls)->ap);
 	ft_strdel(&((*ls)->pre));
+	ft_strdel(&((*ls)->bod));
+	// ft_strdel(&((*ls)->start)); //is equal to str and destroys by va_end
+	free(*ls);
 	*ls = NULL;
 	return (len);
 }
@@ -332,7 +331,7 @@ void	conv_c(p_list *ls)
 {
 	char c;
 
-	c = (!(ls->convertor) ? *(ls->middle) : va_arg(ls->ap, int));
+	c = (ls->convertor == -1 ? *(ls->middle) : va_arg(ls->ap, int));
 	// ls->len += (!c && ls->precision) ? 1 : 0;
 	BODY = ft_strnew(1);
 	*(BODY) = c;
@@ -422,7 +421,7 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == 'C') ? conv_big(ls) : 0 ;
 	// (ls->convertor == 'p') ? conv_p(ls) : 0 ;
 	(ls->convertor == '%') ? conv_percent(ls) : 0 ;
-	(ls->convertor == '\0') ? conv_c(ls) : 0 ;
+	(ls->convertor == -1) ? conv_c(ls) : 0 ;
 }
 
 size_t	convert_last_numb(p_list *ls)
@@ -578,25 +577,12 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 	while (ls->start)
 	{
 		PRINT_D_MSG("\n\n###PART____%zu___###\n\n", i++);
-		// if (ls->middle < ls->end)
-		// 	ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle);
-			// PRINT_D_MSG("ls->len = %zu\n", ls->len);
 		if (!(ls->start[1]) && *(ls->start) == '%')
 			break ;
 		ls->start = ls->end + 1;
 		pos = ft_strcstr(ls->start, SKIP, 0);
 			PRINT_D_MSG("pos=%d\n", pos);
-		// if (pos > 0)
-		// 	ls->middle = ls->start + pos;
-		// else
-		// {
-		// 	if(*(ls->start) != '%')
-		// 		ls->middle = ft_strchr(ls->start, 0);
-		// 	else 
-		// 		ls->middle = ls->start;
-		// }
-		// ls->middle =  ((pos > 0) ? ls->start + pos : ft_strchr(ls->start, 0));
-		ls->middle = ls->start + ((pos > 0) ? pos : 0);
+		ls->middle = ((pos >= 0) ? ls->start + pos : ls->ptr_end);
 		ls->end = ft_strchr(ls->start, '%');
 			PRINT_D_MSG("ls->start =pos_%03zu=%s\n", -(str - ls->start), ls->start);
 			PRINT_D_MSG("ls->middle=pos_%03zu=%s\n", -(str - ls->middle), ls->middle);
@@ -605,26 +591,32 @@ void	cut_a_piece(p_list *ls, int pos, char *str)
 		if (ls->pre && *(ls->pre))
 		{
 			search_flags(ls);
-				search_precision_and_width(ls, 
-					ft_strcstr_f(ls->pre, ".", 1), 
-					ft_strcstr_f(ls->pre, DIGITS, 1), 
-					find_last_number(ls));
+			search_precision_and_width(ls, 
+				ft_strcstr_f(ls->pre, ".", 1), 
+				ft_strcstr_f(ls->pre, DIGITS, 1), 
+				find_last_number(ls));
 		}		
-		ls->convertor = !(ft_strchr(CONV, *(ls->middle))) ? '\0' : *(ft_strchr(CONV, *(ls->middle)));
+		ls->convertor = !(ft_strchr(CONV, *(ls->middle))) ? -1 : *(ls->middle);
 				ASSERT_D(ls->convertor, "is_conv = %c\n", ls->convertor);
-				ASSERT_D(!ls->convertor, "%c = is_NOT_conv\n", *(ls->middle));
+				ASSERT_D(ls->convertor == -1, "%c = is_NOT_conv\n", *(ls->middle));
 		make_conversion(ls);
-		(!ls->end) ? (ls->end = ft_strchr(ls->start, 0)) : 0;
+		(!ls->end) ? (ls->end = ls->ptr_end) : 0;
 		if (ls->middle < ls->end)
 			ls->len += ft_putnstr(ls->middle + 1, ls->end - ls->middle - 1);
 #ifdef DEBUG
 		print_struct(ls);
 #endif
+		if (ls->end != ls->ptr_end && ls->convertor == '%'
+					&& (pos = ft_strcstr_f(ls->end + 1, "%", 0)) > EOS)
+		{
+			ls->len += ft_putnstr(ls->end + 1, pos);
+			ls->end += pos + 1;
+		}
 		clear_struct(ls);
 		if (ls->end == ls->ptr_end)
 			return ;
-		else if (ls->convertor == '%')
-			ls->end += 1;
+		// else if (ls->convertor == '%')
+			// ls->end += 1;
 	}
 }
 
@@ -634,22 +626,20 @@ int		ft_printf(char *str, ...)
 
 		PRINT_D_MSG("input = %s\n", str);
 	ls = (p_list *)ft_memalloc(sizeof(p_list));
-	clear_struct(ls);
-	va_start(ls->ap, str);
-	ls->start = str;
 	ls->end = ft_strchr(str, '%');
 	if (ls->end)
 	{
+		clear_struct(ls);
+		va_start(ls->ap, str);
+		ls->start = str;
 		ls->ptr_end = ft_strchr(ls->start, 0);
 		ls->len += ft_putnstr(ls->start, ls->end - ls->start);
 		ls->middle = ls->end;
 		cut_a_piece(ls, 0, str);
-		va_end(ls->ap);
 		return ((int)ft_freelist(&ls));
 	}
 	else
 	{
-		va_end(ls->ap);
 		return ((int)ft_putstr(str));
 	}
 	return (0);
