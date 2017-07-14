@@ -109,8 +109,8 @@ int		main(int argc, char **argv)
 	}
 	else
 	{
-        printf("\nres=%d\n", (ft_printf(".%%.", 0, 0)));
-        printf(".%%.\n");
+        printf("\nres=%d\n", (ft_printf("{%05.c}", 0, 0)));
+        // printf("{%05.c}\n", 0);
 
     }
 	return (0);
