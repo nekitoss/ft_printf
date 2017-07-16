@@ -109,7 +109,7 @@ int		main(int argc, char **argv)
 	}
 	else
 	{
-        printf("\nres=%d\n", (ft_printf("{%05.c}", 0, 0)));
+        printf("\nres=%d\n", (ft_printf("|%s|", "ПрэвЭд!")));
         // printf("{%05.c}\n", 0);
 
     }

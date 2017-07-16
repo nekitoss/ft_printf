@@ -424,6 +424,17 @@ void	conv_p(p_list *ls)
 	flag_width_dec(ls);
 }
 
+void	conv_s(p_list *ls)
+{
+	char *s;
+	s = va_arg(ls->ap, char *);
+	if (!s)
+		BODY = ft_strdup("(null)");
+	else
+		BODY = ft_strdup(s);
+	flag_width_str(ls);
+}
+
 void	conv_big(p_list *ls)
 {
 	_LL = 0;
@@ -447,8 +458,8 @@ void	make_conversion(p_list *ls)
 	(ls->convertor == 'U') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'x') ? conv_x(ls, 0) : 0 ;
 	(ls->convertor == 'X') ? conv_x(ls, 1) : 0 ;
-	// (ls->convertor == 's') ? conv_s(ls) : 0 ;
-	// (ls->convertor == 'S') ? conv_big(ls) : 0 ;
+	(ls->convertor == 's') ? conv_s(ls) : 0 ;
+	(ls->convertor == 'S') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'c') ? conv_c(ls) : 0 ;
 	(ls->convertor == 'C') ? conv_big(ls) : 0 ;
 	(ls->convertor == 'p') ? conv_p(ls) : 0 ;
