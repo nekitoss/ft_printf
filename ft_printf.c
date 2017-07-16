@@ -424,16 +424,51 @@ void	conv_p(p_list *ls)
 	flag_width_dec(ls);
 }
 
-void	conv_s(p_list *ls)
+void	conv_s_whitechar(p_list *ls)
 {
 	char *s;
+
 	s = va_arg(ls->ap, char *);
+	
 	if (!s)
 		BODY = ft_strdup("(null)");
 	else
 		BODY = ft_strdup(s);
 	flag_width_str(ls);
 }
+
+void	conv_s(p_list *ls)
+{
+	char *s;
+
+	if (!_LL)
+	{
+		s = va_arg(ls->ap, char *);
+		if (!s)
+			BODY = ft_strdup("(null)");
+		else
+			BODY = ft_strdup(s);
+		flag_width_str(ls);
+	}
+	else
+		conv_s_whitechar(ls);
+}
+
+// void	convert_c_to_wc(char c)
+// {
+// 	char	*str;
+// 	int		len;
+
+// 	str = ft_itoa_base_u(c, 16, 0, 0);
+// 	len = ft_strchr(str, '')
+
+// }
+/*
+0xxxxxxx =7
+110xxxxx 10xxxxxx 6+5=11
+1110xxxx 10xxxxxx 10xxxxxx 6+6+4 = 16
+11110xxx 10xxxxxx 10xxxxxx 10xxxxxx = 6+6+6+3=21
+*/
 
 void	conv_big(p_list *ls)
 {
