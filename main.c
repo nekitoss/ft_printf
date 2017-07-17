@@ -100,26 +100,7 @@ In no case does a non-existent or small field width cause truncation of a numeri
      of a conversion is wider than the field width, the field is expanded to contain the conversion result.
 
 */
-const char clz_table[32] =
-{
-    0, 31, 9, 30, 3, 8, 18, 29, 2, 5, 7, 14, 12, 17,
-    22, 28, 1, 10, 4, 19, 6, 15, 13, 23, 11, 20, 16,
-    24, 21, 25, 26, 27
-};
 
-unsigned long   find_first_bit(unsigned long n)
-{
-    unsigned long c = 0x7dcd629;       /* magic constant... */
-
-    n |= (n >> 1);
-    n |= (n >> 2);
-    n |= (n >> 4);
-    n |= (n >> 8);
-    n |= (n >> 16);
-    if (n == 0) return 32;
-    n = c + (c * n);
-    return (32 - clz_table[n >> 27]);        /* For little endian        */
-}
 int		main(int argc, char **argv)
 {
 	if (argc == 2)
@@ -128,10 +109,9 @@ int		main(int argc, char **argv)
 	}
 	else
 	{
-        printf("%lu\n", find_first_bit(0b01000000));
-        printf("\nres=%d\n", (ft_printf("|%s|", "ПрэвЭд!")));
-        // printf("{%05.c}\n", 0);
-
+   char c;
+    ft_printf("%s | %d | %p | %% | %S | %D | %i | %o | %O | %u | %U | %x | %X | %c | %C","bonjour", 42, &c, L"暖炉", LONG_MAX, 42, 42, 42, 100000, ULONG_MAX, 42, 42, 'c', L'플');
+        // ft_printf("%o%O", 42, 42);
     }
 	return (0);
 }
