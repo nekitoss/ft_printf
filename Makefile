@@ -43,21 +43,23 @@ $(NAME): $(OBJ)
 %.o: %.c
 	@$(CC) $(INC) $(CFLAGS) $(FLAGS) -o $@ $<
 
-clean:
+clean: libclean
 	@rm -f $(OBJ) ft_printf.h.gch printf_main.o main.o
 	@echo "\033[01;31mFt_printf object files deleted\033[0m"
 
-fclean: clean
+fclean: libfclean clean
 	@rm -f $(NAME) a.out
 	@echo "\033[01;31mFt_printf executable files deleted\033[0m"
 
-re: libre fclean all
+re: fclean all
 
 liball:
 	@$(LIBMAKE) all
 
 libclean:
 	@$(LIBMAKE) clean
+libfclean:
+	@$(LIBMAKE) fclean
 
 libre:
 	@$(LIBMAKE) re
