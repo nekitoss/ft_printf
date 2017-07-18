@@ -95,7 +95,8 @@ int			find_last_number(t_p_list *ls)
 	return (pos);
 }
 
-void		search_precision_and_width(t_p_list *ls, int dot, int dig, int ascii)
+void		search_precision_and_width(t_p_list *ls, int dot,
+											int dig, int ascii)
 {
 	if (dot == EOS && dig != EOS)
 		ls->width = convert_last_numb(ls);
