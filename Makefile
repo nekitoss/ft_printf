@@ -34,7 +34,7 @@ $(NAME): $(OBJ)
 	@echo  "\033[32mPrintf was added to libft, libftprintf.a created\033[0m"
 
 %.o: %.c
-	@$(CC) $(INC) $(CFLAGS) -o $@ $<
+	@$(CC) $(INC) $(CFLAGS) $(FLAGS) -o $@ $<
 
 clean:
 	@rm -f $(OBJ) ft_printf.h.gch printf_main.o main.o
