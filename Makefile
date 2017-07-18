@@ -11,7 +11,14 @@ FLAGS = -Wall -Wextra -Werror
 
 NAME = libftprintf.a
 
-SRC = ft_printf.c
+SRC = ft_printf.c\
+		additional_funtions.c\
+		convertor_choose_and_percent.c\
+		cs_whitechar.c\
+		doux.c\
+		flag_search.c\
+		precision_and_width.c\
+		processing_width_and_precision.c
 
 OBJ = $(SRC:.c=.o)
 
