@@ -169,7 +169,7 @@ char	*ft_newstrchar(size_t len, char c)
 
 void	clear_struct(p_list *ls)
 {
-	ft_bzero((char *) ls->flags, sizeof((ls->flags[0]) * 12));
+	ft_bzero((char *) ls->flags, sizeof(ls->flags));
 	ft_strdel(&(ls->pre));
 	ft_strdel(&(BODY));
 	ls->precision = -1;
