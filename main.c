@@ -110,7 +110,8 @@ int		main(int argc, char **argv)
 	else
 	{
    char c;
-   while(1)
+   int i = 11;
+   while(--i)
     ft_printf("%S| s=%s | d=42=%d | p=%p | %% | | D=9223372036854775807=%D | i=1=%i | o=2=%o | O=3=%O | u=100000=%u | U=18446744073709551615=%U | x=2a=%x | X=2A=%X | c=c=%c | C=%C",
                 L"暖炉", "bonjour", 42, &c,  LONG_MAX, 1, 2, 3, 100000, ULONG_MAX, 42, 42, 'c', L'플');
         // ft_printf("%o%O", 42, 42);

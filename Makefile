@@ -66,3 +66,8 @@ maind: all
 	@echo  "\033[32mLibrary and printf_main.c compilation with additional flags finished\033[0m"
 
 mdre: fclean maind
+
+debugmain:
+	@$(LIBMAKE) debug
+	@$(CC) $(FLAGS) -g ft_printf.c main.c
+	@echo  "\033[32m DEBUG compilation finished\033[0m"
